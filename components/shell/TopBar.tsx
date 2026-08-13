@@ -1,8 +1,18 @@
+"use client";
+
 import Link from "next/link";
+import { useMemo, useState } from "react";
 import { AskBridge } from "@/components/ask/AskBridge";
+import { loadBridgeSettings, shortLanguageLabel } from "@/lib/settings";
 import { Icon } from "./Icon";
 
 export function TopBar() {
+  const [settings] = useState(() => loadBridgeSettings());
+  const languageBadge = useMemo(
+    () => shortLanguageLabel(settings.interfaceLanguage),
+    [settings.interfaceLanguage],
+  );
+
   return (
     <header className="flex items-center justify-between gap-4 border-b border-[var(--line)] bg-[var(--surface)] px-4 py-3 sm:px-6">
       <div className="ml-auto flex items-center gap-3">
@@ -12,7 +22,7 @@ export function TopBar() {
           className="flex min-h-11 items-center gap-2 rounded-lg border border-[var(--line)] px-3 py-2 text-xs font-medium text-[var(--foreground)] transition hover:bg-[var(--brand-soft)]"
         >
           <Icon name="globe" className="h-4 w-4 text-[var(--brand)]" />
-          EN
+          {languageBadge}
         </Link>
         <span className="relative grid h-11 w-11 place-items-center rounded-lg text-[var(--muted)]">
           <Icon name="bell" className="h-[18px] w-[18px]" />

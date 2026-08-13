@@ -8,13 +8,12 @@ import {
   clearAllLocalBridgeData,
   clearAskBridgeThread,
   clearSavedHistory,
+  INTERFACE_LANGUAGE_OPTIONS,
   loadBridgeSettings,
   saveBridgeSettings,
+  TRANSLATION_LANGUAGE_OPTIONS,
   type BridgeSettings,
 } from "@/lib/settings";
-
-const INTERFACE_LANGUAGES = ["English", "Spanish", "French"] as const;
-const TRANSLATION_LANGUAGES = ["Spanish", "English", "Mandarin", "Arabic"] as const;
 
 type SettingsSection = "profile" | "language" | "privacy";
 
@@ -174,7 +173,7 @@ export function SettingsWorkspace() {
                       }
                       className={selectClass}
                     >
-                      {INTERFACE_LANGUAGES.map((language) => (
+                      {INTERFACE_LANGUAGE_OPTIONS.map((language) => (
                         <option key={language} value={language}>
                           {language}
                         </option>
@@ -192,7 +191,7 @@ export function SettingsWorkspace() {
                       }
                       className={selectClass}
                     >
-                      {TRANSLATION_LANGUAGES.map((language) => (
+                      {TRANSLATION_LANGUAGE_OPTIONS.map((language) => (
                         <option key={language} value={language}>
                           {language}
                         </option>
