@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AskBridgeCard } from "@/components/ask/AskBridgeCard";
 import { Icon } from "@/components/shell/Icon";
 
 interface Step {
@@ -117,7 +118,7 @@ export default function HomePage() {
             Good morning, Mercedes <span aria-hidden>👋</span>
           </h1>
           <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-600">
-            Companion is here to help you prepare, advocate, and take action for
+            Bridge is here to help you prepare, advocate, and take action for
             your health.
           </p>
         </div>
@@ -359,12 +360,7 @@ export default function HomePage() {
             blurb="Match your profile against trials"
             href="/profile"
           />
-          <QuickAction
-            icon="chat"
-            title="Ask Companion"
-            blurb="Get answers to your questions"
-            href="/before"
-          />
+          <AskBridgeCard />
         </div>
       </section>
     </div>

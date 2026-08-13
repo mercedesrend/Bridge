@@ -14,7 +14,7 @@ export default function ProfilePage() {
           Find trials worth asking about
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600">
-          Tell us about your situation. Companion searches currently recruiting
+          Tell us about your situation. Bridge searches currently recruiting
           trials and compares your profile against each trial&rsquo;s
           eligibility criteria, one line at a time — so you can walk into your
           next appointment with a focused list of questions.
@@ -28,7 +28,7 @@ export default function ProfilePage() {
       <section className="rounded-2xl bg-[var(--brand-soft)] p-4 text-[13px] leading-relaxed text-slate-600">
         <p className="font-semibold text-slate-800">A note on how to use this</p>
         <p className="mt-1">
-          Companion never tells you that you qualify for a trial. It highlights
+          Bridge never tells you that you qualify for a trial. It highlights
           trials that may be{" "}
           <span className="font-semibold">
             worth asking your care team about

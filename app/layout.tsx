@@ -4,7 +4,7 @@ import { Sidebar, MobileNav } from "@/components/shell/Sidebar";
 import { TopBar } from "@/components/shell/TopBar";
 
 export const metadata: Metadata = {
-  title: "Companion — your healthcare advocate",
+  title: "Bridge — your healthcare advocate",
   description:
     "Prepare, advocate, and take action for your health. Final eligibility for any clinical trial is determined by the trial site, not this tool.",
 };
@@ -31,7 +31,7 @@ export default function RootLayout({
             <MobileNav />
             <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
             <footer className="px-4 pb-8 pt-2 text-xs text-slate-400 sm:px-6 lg:px-8">
-              Companion is an informational tool and does not provide medical
+              Bridge is an informational tool and does not provide medical
               advice. Final eligibility is determined by the trial site, not
               this tool.
             </footer>

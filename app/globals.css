@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  /* Companion palette */
+  /* Bridge palette */
   --background: #f8f8fc;
   --foreground: #1f2233;
   --surface: #ffffff;
@@ -50,7 +50,7 @@ body {
   word-break: break-word;
 }
 
-/* Shared surface treatment for the card-heavy Companion layout. */
+/* Shared surface treatment for the card-heavy Bridge layout. */
 .card {
   background: var(--surface);
   border: 1px solid var(--line);

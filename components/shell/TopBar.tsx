@@ -1,3 +1,4 @@
+import { AskBridge } from "@/components/ask/AskBridge";
 import { Icon } from "./Icon";
 
 export function TopBar() {
@@ -9,6 +10,7 @@ export function TopBar() {
       </p>
 
       <div className="ml-auto flex items-center gap-3">
+        <AskBridge />
         <span className="rounded-lg border border-[var(--line)] px-2.5 py-1.5 text-xs font-medium text-slate-600">
           EN
         </span>

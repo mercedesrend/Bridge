@@ -55,6 +55,14 @@ const PATHS: Record<string, React.ReactNode> = {
   headset: <path d="M4 14v-2a8 8 0 0 1 16 0v2M4 14a2 2 0 0 1 2-2h1v6H6a2 2 0 0 1-2-2zm16 0a2 2 0 0 0-2-2h-1v6h1a2 2 0 0 0 2-2z" />,
   arrow: <path d="M5 12h14M13 6l6 6-6 6" />,
   check: <path d="m5 13 4 4L19 7" />,
+  close: <path d="M6 6l12 12M18 6 6 18" />,
+  send: <path d="M4.5 12 20 4.5 15 20l-3.5-6.5L4.5 12z" />,
+  sparkle: (
+    <>
+      <path d="M12 3.5 13.7 9l5.3 1.8-5.3 1.8L12 18l-1.7-5.4L5 10.8 10.3 9 12 3.5z" />
+      <path d="M18.5 16.5 19 18l1.5.5-1.5.5-.5 1.5-.5-1.5L16.5 19l1.5-.5.5-1.5z" />
+    </>
+  ),
 };
 
 export function Icon({

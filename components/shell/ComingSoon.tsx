@@ -59,7 +59,7 @@ export function ComingSoon({
           What does work today
         </h2>
         <p className="mt-1 text-[13px] leading-relaxed text-slate-600">
-          Clinical trial matching is fully built: enter a profile and Companion
+          Clinical trial matching is fully built: enter a profile and Bridge
           compares it against currently recruiting trials, criterion by
           criterion.
         </p>

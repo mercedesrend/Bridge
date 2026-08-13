@@ -39,7 +39,7 @@ export function Sidebar() {
         </span>
         <span className="leading-tight">
           <span className="block text-[15px] font-bold text-slate-900">
-            Companion
+            Bridge
           </span>
           <span className="block text-[11px] text-[var(--muted)]">
             Your healthcare advocate
