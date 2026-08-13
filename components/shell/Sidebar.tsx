@@ -3,7 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "./Icon";
-import { JOURNEY_NAV, RESOURCE_NAV, isActive, type NavItem } from "./nav";
+import {
+  ACCOUNT_NAV,
+  JOURNEY_NAV,
+  RESOURCE_NAV,
+  isActive,
+  type NavItem,
+} from "./nav";
 
 function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
   const active = isActive(item.href, pathname);
@@ -47,7 +53,7 @@ export function Sidebar() {
         </span>
       </Link>
 
-      <nav className="flex-1 overflow-y-auto p-3">
+      <nav className="flex flex-1 flex-col overflow-y-auto p-3">
         <div className="space-y-1">
           {JOURNEY_NAV.map((item) => (
             <NavLink key={item.href} item={item} pathname={pathname} />
@@ -61,29 +67,15 @@ export function Sidebar() {
             <NavLink key={item.href} item={item} pathname={pathname} />
           ))}
         </div>
-      </nav>
 
-      <div className="m-3 rounded-2xl bg-[var(--brand-soft)] p-4">
-        <div className="flex items-start gap-3">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white text-[var(--brand)]">
-            <Icon name="settings" className="h-5 w-5" />
-          </span>
-          <div className="min-w-0">
-            <p className="text-[14px] font-semibold leading-snug text-[var(--foreground)]">
-              Settings
-            </p>
-            <p className="mt-1 text-[12px] leading-relaxed text-[var(--muted)]">
-              Profile setup, language preferences, and delete controls all live here now.
-            </p>
-          </div>
+        <div className="my-3 border-t border-[var(--line)]" />
+
+        <div className="space-y-1">
+          {ACCOUNT_NAV.map((item) => (
+            <NavLink key={item.href} item={item} pathname={pathname} />
+          ))}
         </div>
-        <Link
-          href="/settings"
-          className="mt-3 block min-h-11 rounded-xl bg-[var(--brand)] px-3 py-3 text-center text-[13px] font-semibold text-white hover:bg-[var(--brand-strong)]"
-        >
-          Open settings
-        </Link>
-      </div>
+      </nav>
     </aside>
   );
 }
@@ -91,7 +83,7 @@ export function Sidebar() {
 /** Horizontal nav shown instead of the sidebar on small screens. */
 export function MobileNav() {
   const pathname = usePathname();
-  const items = [...JOURNEY_NAV, ...RESOURCE_NAV];
+  const items = [...JOURNEY_NAV, ...RESOURCE_NAV, ...ACCOUNT_NAV];
 
   return (
     <nav className="flex gap-1.5 overflow-x-auto border-b border-[var(--line)] bg-[var(--surface)] px-3 py-2 lg:hidden">

@@ -22,7 +22,12 @@ export const RESOURCE_NAV: NavItem[] = [
   { href: "/saved", label: "Saved & Notes", icon: "bookmark" },
 ];
 
-export const ALL_NAV = [...JOURNEY_NAV, ...RESOURCE_NAV];
+/** Account / utility links that should always appear in the same place. */
+export const ACCOUNT_NAV: NavItem[] = [
+  { href: "/settings", label: "Settings", icon: "settings" },
+];
+
+export const ALL_NAV = [...JOURNEY_NAV, ...RESOURCE_NAV, ...ACCOUNT_NAV];
 
 /**
  * The Clinical Trials section owns several routes, so highlight it for any of

@@ -28,14 +28,18 @@ export function TopBar() {
           <Icon name="bell" className="h-[18px] w-[18px]" />
           <span className="absolute right-3 top-3 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-[var(--surface)]" />
         </span>
-        <span className="flex items-center gap-2">
+        <Link
+          href="/settings"
+          className="flex items-center gap-2 rounded-lg transition hover:opacity-90"
+          aria-label="Open settings"
+        >
           <span className="grid h-11 w-11 place-items-center rounded-full bg-[var(--brand-soft)] text-[13px] font-semibold text-[var(--brand)]">
             M
           </span>
           <span className="hidden text-sm font-medium text-[var(--foreground)] sm:block">
             Mercedes
           </span>
-        </span>
+        </Link>
       </div>
     </header>
   );
