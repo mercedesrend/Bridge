@@ -68,3 +68,26 @@ export interface RankedMatch {
   distanceMiles: number | null;
   nearestLocation: TrialLocation | null;
 }
+
+export interface SavedDocument {
+  id: string;
+  visitId: string;
+  name: string;
+  mimeType: string;
+  sizeBytes: number;
+  uploadedAt: string;
+  dataUrl: string;
+}
+
+export interface VisitRecord {
+  id: string;
+  date: string;
+  doctor: string;
+  specialty: string;
+  location: string;
+  summary: string;
+  symptomsDiscussed: string[];
+  decisionsMade: string;
+  followUpPlan: string;
+  nextAppointment: string;
+}
