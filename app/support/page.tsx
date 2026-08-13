@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AskBridgeInlinePrompts } from "@/components/ask/AskBridgeInlinePrompts";
 import { Icon } from "@/components/shell/Icon";
 
 export default function SupportPage() {
@@ -30,6 +31,11 @@ export default function SupportPage() {
           </div>
         </div>
       </section>
+
+      <AskBridgeInlinePrompts
+        title="Use Bridge for immediate guidance"
+        blurb="Support can help with the product, and Ask Bridge can help you think through the appointment questions, notes, and next steps that brought you here."
+      />
 
       <Link
         href="/"

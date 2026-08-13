@@ -53,6 +53,8 @@ const LABELS: [test: RegExp, label: string][] = [
   [/^\/before/, "Before Appointment"],
   [/^\/during/, "During Appointment"],
   [/^\/after/, "After Appointment"],
+  [/^\/settings/, "Settings"],
+  [/^\/support/, "Support"],
   [/^\/treatment-options/, "Treatment Options"],
   [/^\/second-opinions/, "Second Opinions"],
   [/^\/saved/, "Saved & Notes"],
@@ -103,6 +105,16 @@ const PROMPTS: Record<string, string[]> = {
     "Help me organize my notes for my next visit",
     "What is worth saving from an appointment?",
     "How do I keep track of my medications?",
+  ],
+  Settings: [
+    "How do I ask for an interpreter?",
+    "What language support should I request before a visit?",
+    "What information is safe to share here?",
+  ],
+  Support: [
+    "How can Bridge help me prepare for a visit?",
+    "What should I do if I feel lost after an appointment?",
+    "How do I organize my questions before I see my doctor?",
   ],
 };
 

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AskBridgeInlinePrompts } from "@/components/ask/AskBridgeInlinePrompts";
 import { MatchesClient } from "@/components/MatchesClient";
 import { decodeProfile } from "@/lib/profile";
 
@@ -44,6 +45,10 @@ export default async function MatchesPage({
       </div>
 
       <MatchesClient profile={profile} profileParam={p ?? ""} />
+      <AskBridgeInlinePrompts
+        title="Turn these results into questions"
+        blurb="The trial list is most useful when it becomes a conversation with your care team. Ask Bridge to translate criteria, explain trade-offs, or help you prepare follow-up questions."
+      />
     </div>
   );
 }

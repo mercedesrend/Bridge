@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AskBridgeInlinePrompts } from "@/components/ask/AskBridgeInlinePrompts";
 import { IntakeForm } from "@/components/IntakeForm";
 import { Icon } from "@/components/shell/Icon";
 
@@ -37,6 +38,11 @@ export default function ProfilePage() {
           Final eligibility is determined by the trial site, not this tool.
         </p>
       </section>
+
+      <AskBridgeInlinePrompts
+        title="Get help filling this out"
+        blurb="This is a good place for plain-language questions about diagnosis wording, prior treatments, biomarkers, or what details are worth entering."
+      />
 
       <p className="text-xs text-[var(--muted)]">
         Already ran a search?{" "}

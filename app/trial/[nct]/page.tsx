@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AskBridgeInlinePrompts } from "@/components/ask/AskBridgeInlinePrompts";
 import { TrialDetailClient } from "@/components/TrialDetailClient";
 import { Disclaimer } from "@/components/Disclaimer";
 import { fetchTrialByNct } from "@/lib/clinicaltrials";
@@ -46,6 +47,11 @@ export default async function TrialPage({
       </div>
 
       <TrialDetailClient trial={trial} profile={profile} />
+
+      <AskBridgeInlinePrompts
+        title="Ask about this trial in plain language"
+        blurb="This is the best moment to ask what a criterion means, what to bring to the study team, or which questions belong with your doctor versus the trial site."
+      />
 
       {sites.length > 0 && (
         <section>

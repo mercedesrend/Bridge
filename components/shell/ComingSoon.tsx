@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AskBridgeInlinePrompts } from "@/components/ask/AskBridgeInlinePrompts";
 import { Icon } from "./Icon";
 
 /**
@@ -70,6 +71,11 @@ export function ComingSoon({
           Find clinical trials
         </Link>
       </section>
+
+      <AskBridgeInlinePrompts
+        title="Use Ask Bridge while this section is still growing"
+        blurb="Even though this page is still a placeholder, Bridge can already help with the questions people usually have at this step."
+      />
     </div>
   );
 }

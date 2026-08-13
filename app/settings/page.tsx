@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AskBridgeInlinePrompts } from "@/components/ask/AskBridgeInlinePrompts";
 import { Icon } from "@/components/shell/Icon";
 
 export default function SettingsPage() {
@@ -41,6 +42,11 @@ export default function SettingsPage() {
           </div>
         </div>
       </section>
+
+      <AskBridgeInlinePrompts
+        title="Ask about language support"
+        blurb="Bridge can help you phrase interpreter requests, prepare for translated visits, or decide what to ask the clinic before you arrive."
+      />
 
       <Link
         href="/"
