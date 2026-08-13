@@ -15,7 +15,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen antialiased">
+      {/*
+        suppressHydrationWarning: browser extensions (Grammarly, password
+        managers) inject attributes like data-gr-ext-installed into <body>
+        before React hydrates, which the server HTML can't know about. This
+        only suppresses attribute mismatches on <body> itself — mismatches
+        inside our own components still surface normally.
+      */}
+      <body className="min-h-screen antialiased" suppressHydrationWarning>
         <header className="border-b border-slate-200 bg-white/80 backdrop-blur sticky top-0 z-10">
           <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
             <Link href="/" className="flex items-center gap-2 font-semibold text-slate-900">
