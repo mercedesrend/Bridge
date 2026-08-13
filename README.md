@@ -1,10 +1,10 @@
-# TrialLens
+# Bridge
 
 Compare a patient profile against currently recruiting clinical trials, one
 eligibility criterion at a time — so a patient can walk into an appointment with
 a focused list of questions.
 
-TrialLens never tells anyone they qualify for a trial. It surfaces trials that
+Bridge never tells anyone they qualify for a trial. It surfaces trials that
 may be **worth asking your care team about**, and shows exactly which criteria a
 site would still need information on. **Final eligibility is determined by the
 trial site, not this tool.**
@@ -98,5 +98,5 @@ environment variables. No other configuration is needed.
 
 ## Disclaimer
 
-TrialLens is an informational tool. It does not provide medical advice and does
+Bridge is an informational tool. It does not provide medical advice and does
 not determine eligibility for any clinical trial.
