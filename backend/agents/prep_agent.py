@@ -15,7 +15,13 @@ from __future__ import annotations
 
 import json
 
-from data.fixtures import FALLBACK_BRIEF, FALLBACK_TRIALS, LANGUAGES, READING_LEVELS
+from data.fixtures import (
+    FALLBACK_BRIEF,
+    FALLBACK_TRIALS,
+    LANGUAGES,
+    READING_LEVELS,
+    format_history,
+)
 from services.llm import complete_json
 from services.research import gather_evidence
 
@@ -35,6 +41,7 @@ scared, polite in the exam room, and deciding with relatives afterward.
 
 SCHEMA = """{
   "plain_summary": "2-4 sentences explaining the condition in everyday words",
+  "personalized_note": "2 sentences tying THEIR history and symptoms to what to ask first. Empty if they shared nothing.",
   "key_numbers": [{"label": "", "meaning": "", "typical_target": ""}],
   "standard_treatments": [{"name": "", "what_it_is": "", "why_it_matters": "", "common_side_effects": "", "status": ""}],
   "emerging_options": [{"name": "", "what_it_is": "", "why_ask": "", "status": ""}],
@@ -90,14 +97,18 @@ async def build_brief(
     reading_level: str = "simple",
     symptoms: str = "",
     context: str = "",
+    history: dict | None = None,
 ) -> dict:
     evidence = await gather_evidence(condition)
+    hist = format_history(history)
 
     prompt = f"""A patient is preparing for a doctor's appointment.
 
 CONDITION OR CONCERN: {condition}
 WHAT THEY'RE EXPERIENCING: {symptoms or "(not specified)"}
 THEIR CONTEXT: {context or "(not specified)"}
+HISTORY THEY SHARED (optional — never diagnose from this):
+{hist or "(none)"}
 
 WRITE THE ENTIRE OUTPUT IN: {_language_name(language)}
 READING LEVEL: {_reading_hint(reading_level)}
@@ -107,7 +118,10 @@ EVIDENCE RETRIEVED (use only this):
 
 Produce a briefing they can read before the visit and a list of 5-7 questions \
 to bring with them. Order questions by priority — the ones that would change \
-their care most go first. Include 3-4 visit_tips on how to make the most of a \
+their care most go first. If they shared history, write personalized_note and \
+put matching questions first (symptoms, medicines they already take, family \
+history, language). Mention possible medicine overlap only as a question to \
+ask, never as a fact. Include 3-4 visit_tips on how to make the most of a \
 short appointment (including language access). Include red flags only if the \
 evidence supports them.
 
@@ -157,6 +171,8 @@ Return JSON matching exactly this shape:
         ]
     brief["sources"] = sources
     brief["trials"] = trials
+    if not brief.get("personalized_note") and hist:
+        brief["personalized_note"] = FALLBACK_BRIEF.get("personalized_note", "")
     if not brief.get("visit_tips"):
         brief["visit_tips"] = FALLBACK_BRIEF.get("visit_tips", [])
     if not brief.get("red_flags"):

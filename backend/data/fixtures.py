@@ -17,7 +17,31 @@ DEMO_PATIENT = {
     "reading_level": "simple",
     "symptoms": "Always thirsty, tired in the afternoons, blurry vision some days. Hard to follow when the doctor talks fast.",
     "context": "First specialist visit. English is my second language. I usually ask my daughter to come translate.",
+    "age_range": "50-64",
+    "other_conditions": "High blood pressure",
+    "medications": "Lisinopril 10 mg once a day",
+    "allergies": "None that I know of",
+    "family_history": "My mother had type 2 diabetes. My father had a heart attack in his 60s.",
 }
+
+
+def format_history(history: dict | None) -> str:
+    """Turn optional history fields into a prompt-safe block. Never includes a name."""
+    if not history:
+        return ""
+    labels = {
+        "age_range": "Age range",
+        "other_conditions": "Other conditions they mentioned",
+        "medications": "Medicines they already take",
+        "allergies": "Allergies",
+        "family_history": "Family health history",
+    }
+    lines = []
+    for key, label in labels.items():
+        value = str(history.get(key) or "").strip()
+        if value and value not in {"prefer_not", "prefer-not", ""}:
+            lines.append(f"{label}: {value}")
+    return "\n".join(lines)
 
 # --- During phase: the scripted appointment -------------------------------
 # `speaker` is one of: doctor | patient | interpreter
@@ -141,6 +165,11 @@ FALLBACK_BRIEF = {
             "priority": "high",
         },
         {
+            "question": "I take a blood pressure pill and diabetes runs in my family. Does that change what we try first?",
+            "why": "Your history should shape the plan — it is fair to ask, not rude.",
+            "priority": "high",
+        },
+        {
             "question": "My vision has been blurry some days. Should I see an eye doctor?",
             "why": "Blurry vision can be related to blood sugar and is worth checking.",
             "priority": "high",
@@ -161,6 +190,12 @@ FALLBACK_BRIEF = {
             "priority": "medium",
         },
     ],
+    "personalized_note": (
+        "You mentioned thirst, tiredness, and blurry vision, blood pressure medicine, "
+        "and diabetes in the family. Ask first about your A1C, an eye check, and whether "
+        "metformin is the right first step for you — not only the default. If the visit "
+        "is short, say you have two more questions before they stand up."
+    ),
     "visit_tips": [
         {
             "tip": "You can bring a family member. You can also ask for a free professional interpreter — it is your right, not a favor.",

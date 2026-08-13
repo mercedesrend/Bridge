@@ -25,6 +25,7 @@ from pydantic import BaseModel, Field
 from agents.interpret_agent import interpret_turns
 from agents.prep_agent import build_brief
 from agents.recap_agent import build_recap
+from agents.tutor_agent import answer_question
 from config import mode_report, settings
 from data.fixtures import DEMO_PATIENT, DEMO_TRANSCRIPT, LANGUAGES, READING_LEVELS
 
@@ -65,12 +66,21 @@ def _get_session(session_id: str) -> dict:
 # --------------------------------------------------------------------------
 # Models
 # --------------------------------------------------------------------------
+class PatientHistory(BaseModel):
+    age_range: str = ""
+    other_conditions: str = ""
+    medications: str = ""
+    allergies: str = ""
+    family_history: str = ""
+
+
 class PrepRequest(BaseModel):
     condition: str = Field(..., min_length=2, max_length=300)
     language: str = "en"
     reading_level: str = "simple"
     symptoms: str = ""
     context: str = ""
+    history: PatientHistory = Field(default_factory=PatientHistory)
 
 
 class ConsentRequest(BaseModel):
@@ -89,6 +99,12 @@ class InterpretRequest(BaseModel):
 
 class RecapRequest(BaseModel):
     session_id: str
+
+
+class AskRequest(BaseModel):
+    message: str = Field(..., min_length=1, max_length=2000)
+    session_id: str | None = None
+    language: str = "en"
 
 
 # --------------------------------------------------------------------------
@@ -121,8 +137,12 @@ async def prep(req: PrepRequest):
         "language": req.language,
         "reading_level": req.reading_level,
         "condition": req.condition,
+        "symptoms": req.symptoms,
+        "context": req.context,
+        "history": req.history.model_dump(),
         "consent": None,
         "transcript": [],
+        "chat": [],
         "audit": [],
     }
     SESSIONS[session_id] = session
@@ -140,6 +160,7 @@ async def prep(req: PrepRequest):
         reading_level=req.reading_level,
         symptoms=req.symptoms,
         context=req.context,
+        history=req.history.model_dump(),
     )
     session["brief"] = brief
     _audit(
@@ -250,6 +271,8 @@ async def recap(req: RecapRequest):
         prepared_questions=prepared,
         language=session["language"],
         condition=session.get("condition", ""),
+        history=session.get("history") or {},
+        context=session.get("context", ""),
     )
     session["recap"] = result
     _audit(
@@ -260,6 +283,39 @@ async def recap(req: RecapRequest):
     )
 
     return {"recap": result, "audit": session["audit"]}
+
+
+@app.post("/api/ask")
+async def ask(req: AskRequest):
+    """Health-literacy chat. Works with or without a session."""
+    session = SESSIONS.get(req.session_id) if req.session_id else None
+    language = (session or {}).get("language") or req.language or "en"
+    brief = (session or {}).get("brief") or {}
+
+    reply = await answer_question(
+        message=req.message,
+        language=language,
+        condition=(session or {}).get("condition", ""),
+        symptoms=(session or {}).get("symptoms", ""),
+        context=(session or {}).get("context", ""),
+        history=(session or {}).get("history") or {},
+        brief_summary=brief.get("plain_summary", ""),
+        chat_history=(session or {}).get("chat") or [],
+    )
+
+    turn = {
+        "at": _now(),
+        "question": req.message,
+        "answer": reply.get("answer", ""),
+        "related_questions": reply.get("related_questions", []),
+        "ask_your_doctor": reply.get("ask_your_doctor", ""),
+        "source": (reply.get("_meta") or {}).get("llm_source"),
+    }
+    if session is not None:
+        session.setdefault("chat", []).append(turn)
+        _audit(session, "ask_bridge", preview=req.message[:80])
+        return {"reply": reply, "audit": session["audit"]}
+    return {"reply": reply, "audit": []}
 
 
 @app.get("/api/session/{session_id}")
@@ -277,10 +333,12 @@ async def export_session(session_id: str):
         "created_at": session["created_at"],
         "condition": session.get("condition"),
         "language": session.get("language"),
+        "history": session.get("history"),
         "consent": session.get("consent"),
         "brief": session.get("brief"),
         "transcript": session.get("transcript"),
         "recap": session.get("recap"),
+        "chat": session.get("chat"),
         "audit": session.get("audit"),
         "generated_at": _now(),
         "disclaimer": (

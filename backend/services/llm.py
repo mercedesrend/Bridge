@@ -1,8 +1,12 @@
 """Single entry point for every model call in the app.
 
-Every agent calls `complete_json`. If no API key is configured (or we've
-forced scripted mode for the demo), the caller's `fallback` value is
-returned instead and the response is tagged so the UI can label it.
+Order:
+  1. Amazon Bedrock (hackathon default — Claude on AWS)
+  2. Anthropic HTTP API, if a key is set
+  3. Scripted fallback so the demo never dies
+
+Every agent calls `complete_json`. If nothing is live, the caller's `fallback`
+is returned and tagged so the UI can label it.
 """
 
 from __future__ import annotations
@@ -25,7 +29,7 @@ _FENCE = re.compile(r"^\s*```(?:json)?\s*|\s*```\s*$", re.MULTILINE)
 class LLMResult:
     def __init__(self, data: Any, source: str, error: str | None = None):
         self.data = data
-        self.source = source  # "live" | "scripted" | "scripted_after_error"
+        self.source = source  # "bedrock" | "live" | "scripted" | "scripted_after_error"
         self.error = error
 
 
@@ -50,18 +54,33 @@ def _extract_json(text: str) -> Any:
     return json.loads(cleaned[start : end + 1])
 
 
-async def complete_json(
-    *,
-    system: str,
-    prompt: str,
-    fallback: Any,
-    max_tokens: int = 3000,
-    temperature: float = 0.2,
-) -> LLMResult:
-    """Ask the model for JSON. Never raises — degrades to `fallback`."""
-    if not settings.llm_live:
-        return LLMResult(fallback, "scripted")
+def _bedrock_text(system: str, prompt: str, *, max_tokens: int, temperature: float) -> str:
+    import boto3
 
+    kwargs = {"region_name": settings.aws_region}
+    if settings.aws_access_key_id and settings.aws_secret_access_key:
+        kwargs["aws_access_key_id"] = settings.aws_access_key_id
+        kwargs["aws_secret_access_key"] = settings.aws_secret_access_key
+    client = boto3.client("bedrock-runtime", **kwargs)
+    resp = client.converse(
+        modelId=settings.bedrock_model_id,
+        system=[{"text": system}],
+        messages=[{"role": "user", "content": [{"text": prompt}]}],
+        inferenceConfig={
+            "maxTokens": max_tokens,
+            "temperature": temperature,
+        },
+    )
+    parts = []
+    for block in resp.get("output", {}).get("message", {}).get("content", []):
+        if "text" in block:
+            parts.append(block["text"])
+    return "\n".join(parts).strip()
+
+
+async def _anthropic_text(
+    *, system: str, prompt: str, max_tokens: int, temperature: float
+) -> str:
     payload = {
         "model": settings.anthropic_model,
         "max_tokens": max_tokens,
@@ -74,22 +93,72 @@ async def complete_json(
         "x-api-key": settings.anthropic_api_key,
         "anthropic-version": "2023-06-01",
     }
+    async with httpx.AsyncClient(timeout=settings.request_timeout) as client:
+        resp = await client.post(ANTHROPIC_URL, json=payload, headers=headers)
+        resp.raise_for_status()
+        body = resp.json()
+    return "\n".join(
+        block.get("text", "")
+        for block in body.get("content", [])
+        if block.get("type") == "text"
+    ).strip()
 
+
+async def _complete(*, system: str, prompt: str, max_tokens: int, temperature: float) -> LLMResult:
+    import asyncio
+
+    errors = []
+    if settings.bedrock_live:
+        try:
+            text = await asyncio.to_thread(
+                _bedrock_text,
+                system,
+                prompt,
+                max_tokens=max_tokens,
+                temperature=temperature,
+            )
+            return LLMResult(text, "bedrock")
+        except Exception as exc:  # noqa: BLE001
+            log.warning("Bedrock call failed: %s", exc)
+            errors.append(str(exc))
+
+    if settings.anthropic_live:
+        try:
+            text = await _anthropic_text(
+                system=system,
+                prompt=prompt,
+                max_tokens=max_tokens,
+                temperature=temperature,
+            )
+            return LLMResult(text, "live")
+        except Exception as exc:  # noqa: BLE001
+            log.warning("Anthropic call failed: %s", exc)
+            errors.append(str(exc))
+
+    return LLMResult(None, "scripted" if not errors else "scripted_after_error", "; ".join(errors) or None)
+
+
+async def complete_json(
+    *,
+    system: str,
+    prompt: str,
+    fallback: Any,
+    max_tokens: int = 3000,
+    temperature: float = 0.2,
+) -> LLMResult:
+    """Ask the model for JSON. Never raises — degrades to `fallback`."""
+    if not settings.llm_live:
+        return LLMResult(fallback, "scripted")
+
+    result = await _complete(
+        system=system, prompt=prompt, max_tokens=max_tokens, temperature=temperature
+    )
+    if result.source in {"scripted", "scripted_after_error"} or not result.data:
+        return LLMResult(fallback, result.source if result.source != "scripted" else "scripted", result.error)
     try:
-        async with httpx.AsyncClient(timeout=settings.request_timeout) as client:
-            resp = await client.post(ANTHROPIC_URL, json=payload, headers=headers)
-            resp.raise_for_status()
-            body = resp.json()
-
-        text = "\n".join(
-            block.get("text", "")
-            for block in body.get("content", [])
-            if block.get("type") == "text"
-        )
-        return LLMResult(_extract_json(text), "live")
-
-    except Exception as exc:  # noqa: BLE001 - demo must survive anything
-        log.warning("LLM call failed, using scripted fallback: %s", exc)
+        return LLMResult(_extract_json(str(result.data)), result.source)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Could not parse model JSON: %s", exc)
         return LLMResult(fallback, "scripted_after_error", str(exc))
 
 
@@ -100,28 +169,10 @@ async def complete_text(
     if not settings.llm_live:
         return LLMResult(fallback, "scripted")
 
-    payload = {
-        "model": settings.anthropic_model,
-        "max_tokens": max_tokens,
-        "temperature": 0.1,
-        "system": system,
-        "messages": [{"role": "user", "content": prompt}],
-    }
-    headers = {
-        "content-type": "application/json",
-        "x-api-key": settings.anthropic_api_key,
-        "anthropic-version": "2023-06-01",
-    }
-
-    try:
-        async with httpx.AsyncClient(timeout=settings.request_timeout) as client:
-            resp = await client.post(ANTHROPIC_URL, json=payload, headers=headers)
-            resp.raise_for_status()
-            body = resp.json()
-        text = "\n".join(
-            b.get("text", "") for b in body.get("content", []) if b.get("type") == "text"
-        ).strip()
-        return LLMResult(text or fallback, "live")
-    except Exception as exc:  # noqa: BLE001
-        log.warning("LLM text call failed: %s", exc)
-        return LLMResult(fallback, "scripted_after_error", str(exc))
+    result = await _complete(
+        system=system, prompt=prompt, max_tokens=max_tokens, temperature=0.1
+    )
+    if result.source in {"scripted", "scripted_after_error"} or not result.data:
+        return LLMResult(fallback, result.source if result.source != "scripted" else "scripted", result.error)
+    text = str(result.data).strip()
+    return LLMResult(text or fallback, result.source, result.error)

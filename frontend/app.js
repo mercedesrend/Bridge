@@ -17,7 +17,46 @@ const state = {
   speaker: "doctor",
   listening: false,
   recognition: null,
+  uiLang: "en",
+  bigText: false,
+  helpingFamily: false,
+  screen: "lang",
 };
+
+const BACK = {
+  home: "lang",
+  visit: "home",
+  story: "visit",
+  "brief-q": "story",
+  "brief-more": "brief-q",
+  consent: "brief-q",
+  live: "consent",
+  after: "live",
+  "after-note": "after",
+  "after-gaps": "after-note",
+};
+
+const DARK_SCREENS = new Set(["lang", "home"]);
+const ASK_SCREENS = new Set(["brief-q", "brief-more", "after", "after-note", "after-gaps"]);
+
+function showScreen(id) {
+  state.screen = id;
+  document.body.dataset.screen = id;
+  $$(".screen").forEach((s) => s.classList.toggle("is-on", s.dataset.screen === id));
+  const dark = DARK_SCREENS.has(id);
+  document.body.classList.toggle("theme-dark", dark);
+  document.body.classList.toggle("theme-light", !dark);
+  const chapter = ["lang", "home", "visit", "story", "brief-q", "brief-more"].includes(id)
+    ? "before"
+    : ["consent", "live"].includes(id)
+      ? "during"
+      : "after";
+  $$(".dots i").forEach((d) => d.classList.toggle("is-on", d.dataset.p === chapter));
+  $("#btn-back")?.classList.toggle("hidden", id === "lang" || !BACK[id]);
+  window.scrollTo(0, 0);
+  const body = document.querySelector(`.screen.is-on .screen-body`);
+  if (body) body.scrollTop = 0;
+}
 
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => Array.from(document.querySelectorAll(sel));
@@ -40,6 +79,7 @@ function languageName(code) {
 }
 
 function sourcePill(src) {
+  if (src === "bedrock" || src === "aws") return `<span class="pill pill-live">AWS</span>`;
   if (src === "live") return `<span class="pill pill-live">live AI</span>`;
   if (src === "scripted_after_error")
     return `<span class="pill pill-scripted">fallback used</span>`;
@@ -63,21 +103,15 @@ async function api(path, opts = {}) {
 }
 
 function syncTheme() {
-  const landing =
-    $("#phase-before").classList.contains("is-active") &&
-    !$("#before-form").classList.contains("hidden");
-  document.body.classList.toggle("theme-dark", landing);
-  document.body.classList.toggle("theme-light", !landing);
+  const dark = DARK_SCREENS.has(state.screen || "lang");
+  document.body.classList.toggle("theme-dark", dark);
+  document.body.classList.toggle("theme-light", !dark);
 }
 
 function goto(phase) {
-  $$(".phase").forEach((p) => p.classList.remove("is-active"));
-  $(`#phase-${phase}`).classList.add("is-active");
-  $$(".nav-link").forEach((s) =>
-    s.classList.toggle("is-active", s.dataset.phase === phase)
-  );
-  syncTheme();
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  if (phase === "before") showScreen(state.brief ? "brief-q" : "home");
+  else if (phase === "during") showScreen(state.sessionId ? "consent" : "home");
+  else if (phase === "after") showScreen(state.recap ? "after-note" : "after");
 }
 
 $$(".nav-link").forEach((s) =>
@@ -86,6 +120,11 @@ $$(".nav-link").forEach((s) =>
 $$("[data-goto]").forEach((b) =>
   b.addEventListener("click", () => goto(b.dataset.goto))
 );
+
+$("#btn-back")?.addEventListener("click", () => {
+  const prev = BACK[state.screen];
+  if (prev) showScreen(prev);
+});
 
 function markDone(phase) {
   const step = $(`.nav-link[data-phase="${phase}"]`);
@@ -122,86 +161,222 @@ async function loadOptions() {
           }</option>`
       )
       .join("");
-
-    $("#reading_level").innerHTML = opts.reading_levels
-      .map((r) => `<option value="${r.code}">${esc(r.label)}</option>`)
-      .join("");
-
-    const setHint = () => {
-      const lvl = opts.reading_levels.find(
-        (r) => r.code === $("#reading_level").value
+    if ($("#ui-language")) {
+      $("#ui-language").innerHTML = opts.languages
+        .map((l) => `<option value="${l.code}">${esc(l.native)}</option>`)
+        .join("");
+    }
+    if ($("#lang-bar")) {
+      $("#lang-bar").innerHTML = opts.languages
+        .map(
+          (l) =>
+            `<button type="button" class="lang-chip" data-lang="${esc(l.code)}">${esc(l.native)}</button>`
+        )
+        .join("");
+      $$(".lang-chip").forEach((b) =>
+        b.addEventListener("click", () => setUiLang(b.dataset.lang))
       );
-      $("#reading-hint").textContent = lvl ? lvl.hint : "";
-    };
-    $("#reading_level").addEventListener("change", setHint);
-    setHint();
+    }
+
+    if ($("#reading_level") && $("#reading_level").tagName === "SELECT") {
+      $("#reading_level").innerHTML = opts.reading_levels
+        .map((r) => `<option value="${r.code}">${esc(r.label)}</option>`)
+        .join("");
+      const setHint = () => {
+        const lvl = opts.reading_levels.find(
+          (r) => r.code === $("#reading_level").value
+        );
+        if ($("#reading-hint")) $("#reading-hint").textContent = lvl ? lvl.hint : "";
+      };
+      $("#reading_level").addEventListener("change", setHint);
+      setHint();
+    }
 
     const m = opts.mode;
-    const live = m.llm === "live";
-    $("#mode-pill").className = `pill ${live ? "pill-live" : "pill-scripted"}`;
-    $("#mode-pill").textContent = live ? `live · ${m.model}` : "scripted mode";
+    const live = m.llm === "live" || m.llm === "bedrock";
+    if ($("#mode-pill")) {
+      $("#mode-pill").className = `pill ${live ? "pill-live" : "pill-scripted"}`;
+      $("#mode-pill").textContent = live
+        ? `${m.llm} · ${(m.model || "").split(".").pop()}`
+        : "scripted mode";
+    }
+
+    let saved = "en";
+    try {
+      saved = localStorage.getItem("bridge-lang") || "en";
+    } catch (_) {}
+    setUiLang(saved);
   } catch (err) {
-    $("#mode-pill").textContent = "backend offline";
+    if ($("#mode-pill")) $("#mode-pill").textContent = "backend offline";
     toast("Can't reach the backend. Is it running on port 8000?");
   }
 }
 
-function setLangChip(code) {
-  const chip = $("#lang-chip");
-  if (!code) {
-    chip.classList.add("hidden");
-    return;
-  }
-  chip.textContent = languageName(code);
-  chip.classList.remove("hidden");
+function setUiLang(code) {
+  state.uiLang = code || "en";
+  if ($("#language")) $("#language").value = state.uiLang;
+  if ($("#ui-language")) $("#ui-language").value = state.uiLang;
+  $$(".lang-chip").forEach((c) =>
+    c.classList.toggle("is-on", c.dataset.lang === state.uiLang)
+  );
+  applyI18n();
+  renderRights();
+  renderPhrases();
+  renderAskStarters();
+  try {
+    localStorage.setItem("bridge-lang", state.uiLang);
+  } catch (_) {}
 }
 
-$("#btn-demo").addEventListener("click", () => {
+function renderRights() {
+  const el = $("#rights-card");
+  if (!el) return;
+  el.innerHTML = `
+    <h2>${esc(t("rightsTitle"))}</h2>
+    <p>${esc(t("rightsBody"))}</p>
+    <div class="desk-card" id="desk-card-text">${esc(
+      t("deskCard", { lang: languageName(state.uiLang) })
+    )}</div>
+    <button type="button" class="btn btn-secondary btn-sm" id="btn-copy-desk">${esc(
+      t("showDesk")
+    )}</button>`;
+  $("#btn-copy-desk")?.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText($("#desk-card-text").textContent);
+      toast(t("copied"));
+    } catch (_) {}
+  });
+}
+
+function renderPhrases() {
+  const el = $("#brief-phrases");
+  if (!el) return;
+  const items = [
+    ["slow", "phraseSlow"],
+    ["questions", "phraseQuestions"],
+    ["write", "phraseWrite"],
+    ["repeat", "phraseRepeat"],
+  ];
+  el.innerHTML = `
+    <div class="card">
+      <h2>${esc(t("phrasesTitle"))}</h2>
+      <p class="hint">${esc(t("phrasesHint"))}</p>
+      <div class="phrase-grid">${items
+        .map(
+          ([id, key]) => `<button type="button" class="phrase" data-copy="${esc(
+            PHRASE_EN[id] + "\n" + t(key)
+          )}">
+            <span class="phrase-en">${esc(PHRASE_EN[id])}</span>
+            <span class="phrase-local">${esc(t(key))}</span>
+          </button>`
+        )
+        .join("")}</div>
+    </div>`;
+  el.querySelectorAll(".phrase").forEach((btn) =>
+    btn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy);
+        toast(t("copied"));
+      } catch (_) {}
+    })
+  );
+}
+
+function renderFastPhrase() {
+  const el = $("#brief-phrase-fast");
+  if (!el) return;
+  const line = PHRASE_EN.questions + "\n" + t("phraseQuestions");
+  el.innerHTML = `
+    <div class="card">
+      <p class="tx-kicker">${esc(t("ifRushed"))}</p>
+      <button type="button" class="phrase" data-copy="${esc(line)}">
+        <span class="phrase-en">${esc(PHRASE_EN.questions)}</span>
+        <span class="phrase-local">${esc(t("phraseQuestions"))}</span>
+      </button>
+    </div>`;
+  el.querySelector(".phrase")?.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(line);
+      toast(t("copied"));
+    } catch (_) {}
+  });
+}
+
+function fillDemoForm() {
   const d = state.options?.demo_patient;
-  if (!d) return;
+  if (!d) return false;
   $("#condition").value = d.condition;
   $("#symptoms").value = d.symptoms;
   $("#language").value = d.language;
-  $("#reading_level").value = d.reading_level;
-  $("#reading_level").dispatchEvent(new Event("change"));
-  toast("Demo loaded — Spanish-speaking, first specialist visit");
-  $("#prep-form").scrollIntoView({ behavior: "smooth", block: "start" });
+  if ($("#reading_level") && d.reading_level) $("#reading_level").value = d.reading_level;
+  if ($("#age_range")) $("#age_range").value = d.age_range || "";
+  if ($("#other_conditions")) $("#other_conditions").value = d.other_conditions || "";
+  if ($("#medications")) $("#medications").value = d.medications || "";
+  if ($("#allergies")) $("#allergies").value = d.allergies || "";
+  if ($("#family_history")) $("#family_history").value = d.family_history || "";
+  if ($("#context")) $("#context").value = d.context || "";
+  setUiLang(d.language);
+  return true;
+}
+
+function collectPrepPayload() {
+  const helping = $("#helping-family")?.checked;
+  const extra = ($("#context")?.value || "").trim();
+  const context = [extra, helping ? "A family member is helping with this visit." : ""]
+    .filter(Boolean)
+    .join(" ");
+  return {
+    condition: $("#condition").value.trim(),
+    symptoms: $("#symptoms").value.trim(),
+    language: $("#language").value,
+    reading_level: $("#reading_level").value,
+    context,
+    history: {
+      age_range: $("#age_range")?.value || "",
+      other_conditions: ($("#other_conditions")?.value || "").trim(),
+      medications: ($("#medications")?.value || "").trim(),
+      allergies: ($("#allergies")?.value || "").trim(),
+      family_history: ($("#family_history")?.value || "").trim(),
+    },
+  };
+}
+
+function applyPrepResult(data, payload) {
+  state.sessionId = data.session_id;
+  state.brief = data.brief;
+  state.asked = new Set();
+  renderAudit(data.audit);
+  renderBrief(data.brief);
+  setUiLang(payload.language);
+  renderRights();
+  renderPhrases();
+  renderFastPhrase();
+  markDone("before");
+  showScreen("brief-q");
+}
+
+async function runPrep() {
+  const payload = collectPrepPayload();
+  if (!payload.condition) throw new Error("Tell us what the visit is about.");
+  const data = await api("/api/prep", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  applyPrepResult(data, payload);
+  return data;
+}
+
+$("#btn-demo")?.addEventListener("click", () => {
+  if (!fillDemoForm()) return;
+  toast(t("loadDemo"));
+  showScreen("visit");
 });
 
-$("#prep-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const btn = e.target.querySelector("button[type=submit]");
-  const original = btn.textContent;
-  btn.disabled = true;
-  btn.innerHTML = `<span class="loading"><span class="spinner"></span>Pulling studies…</span>`;
+$("#btn-demo-live")?.addEventListener("click", () => startDemoCaptions({ autoplay: true }));
 
-  try {
-    const payload = {
-      condition: $("#condition").value.trim(),
-      symptoms: $("#symptoms").value.trim(),
-      language: $("#language").value,
-      reading_level: $("#reading_level").value,
-    };
-    const data = await api("/api/prep", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
-    state.sessionId = data.session_id;
-    state.brief = data.brief;
-    state.asked = new Set();
-    renderAudit(data.audit);
-    renderBrief(data.brief);
-    setLangChip(payload.language);
-    $("#before-form").classList.add("hidden");
-    $("#before-result").classList.remove("hidden");
-    markDone("before");
-    syncTheme();
-  } catch (err) {
-    toast(err.message);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = original;
-  }
+$("#prep-form")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  showScreen("story");
 });
 
 function questionsHtml(qs, interactive) {
@@ -214,7 +389,7 @@ function questionsHtml(qs, interactive) {
           <input type="checkbox" data-q="${i}" ${asked ? "checked" : ""} />
           <span>
             <div class="q-text">${esc(q.question)} ${
-              q.priority === "high" ? `<span class="pill pill-high">ask first</span>` : ""
+              q.priority === "high" ? `<span class="pill pill-high">${esc(t("askFirst"))}</span>` : ""
             }</div>
             <div class="q-why">${esc(q.why)}</div>
           </span>
@@ -222,7 +397,7 @@ function questionsHtml(qs, interactive) {
       }
       return `<li>
         <div class="q-text">${esc(q.question)} ${
-          q.priority === "high" ? `<span class="pill pill-high">ask first</span>` : ""
+          q.priority === "high" ? `<span class="pill pill-high">${esc(t("askFirst"))}</span>` : ""
         }</div>
         <div class="q-why">${esc(q.why)}</div>
       </li>`;
@@ -247,6 +422,16 @@ function bindQuestionChecks(root) {
 function renderBrief(b) {
   const meta = b._meta || {};
 
+  const note = (b.personalized_note || "").trim();
+  if ($("#brief-for-you")) {
+    $("#brief-for-you").innerHTML = note
+      ? `<div class="card">
+          <p class="tx-kicker">${esc(t("forYou"))}</p>
+          <p>${esc(note)}</p>
+        </div>`
+      : "";
+  }
+
   $("#brief-summary").innerHTML = `
     <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px">
       <h2 style="margin:0">What this means</h2>
@@ -270,7 +455,7 @@ function renderBrief(b) {
   $("#brief-tips").innerHTML = tips.length
     ? `<div class="card">
         <p class="tx-kicker">How to use the room</p>
-        <h2>You do not have to be a good guest</h2>
+        <h2>${esc(t("howToUse"))}</h2>
         <ul class="tip-list">${tips.map((t) => `<li>${esc(t.tip)}</li>`).join("")}</ul>
       </div>`
     : "";
@@ -279,7 +464,7 @@ function renderBrief(b) {
   $("#brief-questions").innerHTML = qs.length
     ? `<div class="card">
         <p class="tx-kicker">Take this in with you</p>
-        <h2>Questions, in order</h2>
+        <h2>${esc(t("questionsInOrder"))}</h2>
         <p class="hint" style="margin-bottom:14px">Ask the ones marked first. Check them off in the room so we can see what never came up.</p>
         <div id="prep-q-list">${questionsHtml(qs, true)}</div>
       </div>`
@@ -294,8 +479,8 @@ function renderBrief(b) {
           ${
             std.length
               ? `<div class="card tx-card">
-                  <p class="tx-kicker">Usually offered</p>
-                  <h2>Standard care</h2>
+                  <p class="tx-kicker">${esc(t("usuallyOffered"))}</p>
+                  <h2>${esc(t("standardCare"))}</h2>
                   <ul class="item-list">${std
                     .map(
                       (t) => `<li>
@@ -316,8 +501,8 @@ function renderBrief(b) {
           ${
             emerging.length
               ? `<div class="card tx-card">
-                  <p class="tx-kicker">Often not mentioned unless you ask</p>
-                  <h2>Newer options</h2>
+                  <p class="tx-kicker">${esc(t("oftenNot"))}</p>
+                  <h2>${esc(t("newerOptions"))}</h2>
                   <ul class="item-list">${emerging
                     .map(
                       (t) => `<li>
@@ -338,7 +523,7 @@ function renderBrief(b) {
   $("#brief-trials").innerHTML = trials.length
     ? `<div class="card">
         <p class="tx-kicker">Treatment observability</p>
-        <h2>Studies worth asking about</h2>
+        <h2>${esc(t("studiesAsk"))}</h2>
         <p class="hint" style="margin-bottom:14px">Not a match — a conversation starter. Matching by condition only, not eligibility. Ask your doctor if any of this applies to you.</p>
         ${trials
           .map(
@@ -373,7 +558,7 @@ function renderBrief(b) {
   const nTrials = meta.trials_found || trials.length;
   $("#brief-sources").innerHTML = sources.length
     ? `<div class="card">
-        <h2>Where this came from</h2>
+        <h2>${esc(t("whereFrom"))}</h2>
         <p class="hint" style="margin-bottom:12px">
           ${papers ? `${papers} papers. ` : ""}${nTrials ? `${nTrials} studies. ` : ""}Every link is a real, checkable source — we do not invent citations.
         </p>
@@ -396,30 +581,74 @@ $("#consent-check").addEventListener("change", (e) => {
 });
 
 $("#btn-skip-consent").addEventListener("click", () => {
-  toast("No problem — Prepare and For the family still work without captions.");
+  showScreen("live");
+  renderLiveQuestions();
+  toast(t("skipCaptionsHint"));
 });
+
+async function recordConsent(text) {
+  const data = await api("/api/session/consent", {
+    method: "POST",
+    body: JSON.stringify({
+      session_id: state.sessionId,
+      consent_given: true,
+      consent_text_shown: text,
+    }),
+  });
+  renderAudit(data.audit);
+  return data;
+}
+
+function showLiveView() {
+  showScreen("live");
+  renderLiveQuestions();
+  markDone("during");
+}
+
+async function startDemoCaptions({ autoplay = true } = {}) {
+  const liveBtn = $("#btn-demo-live");
+  const visitBtn = $("#btn-demo-visit");
+  try {
+    if (liveBtn) liveBtn.disabled = true;
+    if (visitBtn) visitBtn.disabled = true;
+    if (!state.sessionId) {
+      if (!fillDemoForm()) {
+        toast("Can't reach the backend. Is it running on port 8000?");
+        return;
+      }
+      toast("Preparing the demo patient…");
+      await runPrep();
+    }
+    await recordConsent("Demo visit — simulated captions. No live microphone.");
+    showLiveView();
+    $("#btn-play")?.classList.add("is-pulse");
+    if (autoplay) {
+      $("#btn-play")?.click();
+    } else {
+      toast(t("liveHow"));
+    }
+  } catch (err) {
+    toast(err.message);
+  } finally {
+    if (liveBtn) liveBtn.disabled = false;
+    if (visitBtn) visitBtn.disabled = false;
+  }
+}
+
+$("#btn-demo-visit")?.addEventListener("click", () =>
+  startDemoCaptions({ autoplay: true })
+);
 
 $("#btn-consent").addEventListener("click", async () => {
   if (!state.sessionId) {
-    toast("Start with Prepare so we know your language.");
-    goto("before");
+    toast(t("needPrep"));
+    showScreen("home");
     return;
   }
   try {
     const consentText = $(".consent-list").innerText;
-    const data = await api("/api/session/consent", {
-      method: "POST",
-      body: JSON.stringify({
-        session_id: state.sessionId,
-        consent_given: true,
-        consent_text_shown: consentText,
-      }),
-    });
-    renderAudit(data.audit);
-    $("#consent-gate").classList.add("hidden");
-    $("#live-view").classList.remove("hidden");
-    renderLiveQuestions();
-    markDone("during");
+    await recordConsent(consentText);
+    showLiveView();
     toast("Captions on. Nothing leaves this phone.");
   } catch (err) {
     toast(err.message);
@@ -429,8 +658,8 @@ $("#btn-consent").addEventListener("click", async () => {
 function renderLiveQuestions() {
   const qs = state.brief?.questions || [];
   $("#live-questions").innerHTML = qs.length
-    ? `<p class="tx-kicker">Your list</p>
-       <h2>Check off what you asked</h2>
+    ? `<p class="tx-kicker">${esc(t("yourList"))}</p>
+       <h2>${esc(t("checkOff"))}</h2>
        <div id="live-q-list">${questionsHtml(qs, true)}</div>`
     : `<p class="hint">No prepared questions yet.</p>`;
   if (qs.length) bindQuestionChecks($("#live-q-list"));
@@ -514,8 +743,8 @@ function stopMic() {
   setListeningUi(false);
   hideInterim();
   const btn = $("#btn-mic");
-  if (btn) btn.textContent = "Start listening";
-  setSttStatus("Mic off — or simulate the visit for the demo.");
+  if (btn) btn.textContent = t("startListening");
+  setSttStatus(t("micOff"));
 }
 
 function startMic() {
@@ -536,7 +765,7 @@ function startMic() {
   rec.onstart = () => {
     state.listening = true;
     setListeningUi(true);
-    $("#btn-mic").textContent = "Stop listening";
+    $("#btn-mic").textContent = t("stopListening");
     setSttStatus(
       speaker === "patient"
         ? "Listening to you…"
@@ -760,7 +989,7 @@ function renderTerms() {
 $("#btn-recap").addEventListener("click", async () => {
   if (!state.sessionId) {
     toast("Start with Prepare.");
-    goto("before");
+    showScreen("home");
     return;
   }
   const btn = $("#btn-recap");
@@ -774,9 +1003,8 @@ $("#btn-recap").addEventListener("click", async () => {
     state.recap = data.recap;
     renderAudit(data.audit);
     renderRecap(data.recap);
-    $("#after-empty").classList.add("hidden");
-    $("#after-result").classList.remove("hidden");
     markDone("after");
+    showScreen("after-note");
   } catch (err) {
     toast(err.message);
     btn.disabled = false;
@@ -930,7 +1158,7 @@ function familyText() {
 $("#btn-copy").addEventListener("click", async () => {
   try {
     await navigator.clipboard.writeText(familyText());
-    toast("Copied — send it to whoever helps you decide");
+    toast(t("copied"));
   } catch (err) {
     toast("Could not copy");
   }
@@ -972,33 +1200,185 @@ $("#btn-reset").addEventListener("click", () => {
     listening: false,
     recognition: null,
   });
-  $("#before-form").classList.remove("hidden");
-  $("#before-result").classList.add("hidden");
-  $("#consent-gate").classList.remove("hidden");
-  $("#live-view").classList.add("hidden");
-  $("#after-empty").classList.remove("hidden");
-  $("#after-result").classList.add("hidden");
   $("#consent-check").checked = false;
   $("#btn-consent").disabled = true;
   $("#btn-play").disabled = false;
-  $("#btn-play").textContent = "Simulate appointment";
-  $("#btn-mic").textContent = "Start listening";
+  $("#btn-play").textContent = t("simulate");
+  $("#btn-mic").textContent = t("startListening");
   $("#btn-mic").disabled = false;
   $("#transcript").innerHTML = "";
   $("#terms-panel").classList.add("hidden");
   $("#btn-recap").disabled = false;
-  $("#btn-recap").textContent = "Write it for my family";
+  $("#btn-recap").textContent = t("writeFamily");
   if ($("#live-notes")) $("#live-notes").value = "";
-  $$(".nav-link").forEach((s) => s.classList.remove("is-done"));
-  setLangChip(null);
+  if ($("#ask-log")) $("#ask-log").innerHTML = "";
+  $("#ask-panel")?.classList.add("hidden");
+  $("#ask-toggle")?.setAttribute("aria-expanded", "false");
   renderAudit([]);
-  goto("before");
+  applyI18n();
+  showScreen("lang");
 });
-
-loadOptions();
-syncTheme();
 
 $("#brand-home").addEventListener("click", (e) => {
   e.preventDefault();
-  goto("before");
+  showScreen("lang");
 });
+
+$("#ui-language")?.addEventListener("change", (e) => setUiLang(e.target.value));
+$("#language")?.addEventListener("change", (e) => setUiLang(e.target.value));
+$("#helping-family")?.addEventListener("change", (e) => {
+  state.helpingFamily = e.target.checked;
+});
+$("#btn-text")?.addEventListener("click", () => {
+  state.bigText = !state.bigText;
+  document.body.classList.toggle("big-text", state.bigText);
+  $("#btn-text").textContent = t(state.bigText ? "textNormal" : "textAa");
+});
+
+async function submitPrepFrom(btn) {
+  if (!($("#condition")?.value || "").trim()) {
+    toast(t("needCondition"));
+    showScreen("visit");
+    return;
+  }
+  const original = btn?.textContent;
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<span class="loading"><span class="spinner"></span>${esc(t("pulling"))}</span>`;
+  }
+  try {
+    await runPrep();
+  } catch (err) {
+    toast(err.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = original;
+    }
+  }
+}
+
+$("#btn-lang-next")?.addEventListener("click", () => showScreen("home"));
+$("#btn-start")?.addEventListener("click", () => showScreen("visit"));
+$("#btn-visit-next")?.addEventListener("click", () => {
+  if (!($("#condition")?.value || "").trim()) {
+    toast(t("needCondition"));
+    return;
+  }
+  showScreen("story");
+});
+$("#btn-story-go")?.addEventListener("click", (e) => submitPrepFrom(e.currentTarget));
+$("#btn-story-skip")?.addEventListener("click", () => {
+  if ($("#medications")) $("#medications").value = "";
+  if ($("#other_conditions")) $("#other_conditions").value = "";
+  if ($("#allergies")) $("#allergies").value = "";
+  if ($("#family_history")) $("#family_history").value = "";
+  if ($("#context")) $("#context").value = "";
+  if ($("#age_range")) $("#age_range").value = "";
+  submitPrepFrom($("#btn-story-go"));
+});
+$("#btn-to-room")?.addEventListener("click", () => showScreen("consent"));
+$("#btn-to-room-2")?.addEventListener("click", () => showScreen("consent"));
+$("#btn-brief-more")?.addEventListener("click", () => showScreen("brief-more"));
+$("#btn-visit-over")?.addEventListener("click", () => showScreen("after"));
+$("#btn-to-gaps")?.addEventListener("click", () => showScreen("after-gaps"));
+$("#btn-done")?.addEventListener("click", () => showScreen("home"));
+
+function askStarterList() {
+  return state.uiLang === "es"
+    ? [
+        "¿Qué significa la A1C?",
+        "¿Cómo maneja el azúcar mi cuerpo?",
+        "¿Por qué se pone borrosa la vista?",
+        "¿Qué es la metformina?",
+      ]
+    : [
+        "What does A1C mean?",
+        "How does my body handle sugar?",
+        "Why can eyes get blurry?",
+        "What is metformin?",
+      ];
+}
+
+function renderAskStarters() {
+  const el = $("#ask-starters");
+  if (!el) return;
+  el.innerHTML = askStarterList()
+    .map((q) => `<button type="button" class="ask-chip">${esc(q)}</button>`)
+    .join("");
+  el.querySelectorAll(".ask-chip").forEach((btn) =>
+    btn.addEventListener("click", () => sendAsk(btn.textContent))
+  );
+}
+
+function appendAsk(role, html) {
+  const log = $("#ask-log");
+  if (!log) return;
+  const div = document.createElement("div");
+  div.className = `ask-msg ${role}`;
+  div.innerHTML = html;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+async function sendAsk(text) {
+  const message = (text || "").trim();
+  if (!message) return;
+  const input = $("#ask-input");
+  if (input) input.value = "";
+  appendAsk("user", esc(message));
+  const thinking = state.uiLang === "es" ? "Pensando…" : "Thinking…";
+  appendAsk("bot", `<em>${esc(thinking)}</em>`);
+  const pending = $("#ask-log")?.lastElementChild;
+  try {
+    const data = await api("/api/ask", {
+      method: "POST",
+      body: JSON.stringify({
+        message,
+        session_id: state.sessionId,
+        language: state.uiLang,
+      }),
+    });
+    const r = data.reply || {};
+    const related = (r.related_questions || [])
+      .map((q) => `<button type="button" class="ask-chip">${esc(q)}</button>`)
+      .join("");
+    const doctor = r.ask_your_doctor
+      ? `<div class="ask-follow"><strong>${esc(t("askDoctor"))}:</strong> ${esc(r.ask_your_doctor)}</div>`
+      : "";
+    if (pending) {
+      pending.innerHTML = `${esc(r.answer || "")}${doctor}${
+        related ? `<div class="ask-follow">${related}</div>` : ""
+      }`;
+      pending.querySelectorAll(".ask-chip").forEach((btn) =>
+        btn.addEventListener("click", () => sendAsk(btn.textContent))
+      );
+    }
+    if (data.audit) renderAudit(data.audit);
+  } catch (err) {
+    if (pending) pending.textContent = err.message;
+  }
+}
+
+function setAskOpen(open) {
+  $("#ask-panel")?.classList.toggle("hidden", !open);
+  $("#ask-toggle")?.setAttribute("aria-expanded", open ? "true" : "false");
+  if (open) {
+    renderAskStarters();
+    $("#ask-input")?.focus();
+  }
+}
+
+$("#ask-toggle")?.addEventListener("click", () => {
+  const open = $("#ask-panel")?.classList.contains("hidden");
+  setAskOpen(open);
+});
+$("#ask-close")?.addEventListener("click", () => setAskOpen(false));
+$("#ask-form")?.addEventListener("submit", (e) => {
+  e.preventDefault();
+  sendAsk($("#ask-input")?.value);
+});
+
+renderAskStarters();
+loadOptions();
+showScreen("lang");

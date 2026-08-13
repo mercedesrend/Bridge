@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import json
 
-from data.fixtures import FALLBACK_RECAP, LANGUAGES
+from data.fixtures import FALLBACK_RECAP, LANGUAGES, format_history
 from services.llm import complete_json
 
 SYSTEM = """You write after-visit summaries for patients, in their own language.
@@ -54,6 +54,8 @@ async def build_recap(
     prepared_questions: list[dict] | None = None,
     language: str = "en",
     condition: str = "",
+    history: dict | None = None,
+    context: str = "",
 ) -> dict:
     prepared_questions = prepared_questions or []
 
@@ -67,6 +69,9 @@ async def build_recap(
 
     prompt = f"""WRITE THE ENTIRE OUTPUT IN: {_language_name(language)}
 CONDITION DISCUSSED: {condition or "(not specified)"}
+BACKGROUND THEY SHARED BEFORE THE VISIT (for tone only — do not add medical facts that were not spoken):
+{format_history(history) or "(none)"}
+CONTEXT: {context or "(none)"}
 
 QUESTIONS THE PATIENT PREPARED BEFORE THE VISIT:
 {prepped}
