@@ -49,7 +49,8 @@ How to answer:
 - Warm and steady. No false reassurance, no alarm.`;
 
 const LABELS: [test: RegExp, label: string][] = [
-  [/^\/$/, "Home"],
+  [/^\/home$/, "Home"],
+  [/^\/$/, "Bridge landing"],
   [/^\/before/, "Before Appointment"],
   [/^\/during/, "During Appointment"],
   [/^\/after/, "After Appointment"],

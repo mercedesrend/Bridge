@@ -46,7 +46,7 @@ export default function ProfilePage() {
 
       <p className="text-xs text-[var(--muted)]">
         Already ran a search?{" "}
-        <Link href="/" className="font-medium text-[var(--brand)] hover:underline">
+        <Link href="/home" className="font-medium text-[var(--brand)] hover:underline">
           Back to home
         </Link>
       </p>

@@ -13,26 +13,15 @@ import {
 
 function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
   const active = isActive(item.href, pathname);
-  const className = `flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
-    active
-      ? "bg-[var(--brand-soft)] font-semibold text-[var(--brand)]"
-      : "text-[var(--muted)] hover:bg-[var(--surface-raised)] hover:text-[var(--foreground)]"
-  }`;
-
-  if (item.external) {
-    return (
-      <a href={item.href} className={className}>
-        <Icon name={item.icon} className="h-[18px] w-[18px] shrink-0" />
-        <span className="truncate">{item.label}</span>
-      </a>
-    );
-  }
-
   return (
     <Link
       href={item.href}
       aria-current={active ? "page" : undefined}
-      className={className}
+      className={`flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
+        active
+          ? "bg-[var(--brand-soft)] font-semibold text-[var(--brand)]"
+          : "text-[var(--muted)] hover:bg-[var(--surface-raised)] hover:text-[var(--foreground)]"
+      }`}
     >
       <Icon name={item.icon} className="h-[18px] w-[18px] shrink-0" />
       <span className="truncate">{item.label}</span>
@@ -46,7 +35,7 @@ export function Sidebar() {
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r border-[var(--line)] bg-[var(--surface)] lg:flex">
       <Link
-        href="/"
+        href="/home"
         className="flex items-center gap-2.5 border-b border-[var(--line)] px-5 py-[18px]"
       >
         <span className="grid h-9 w-9 place-items-center rounded-xl bg-[var(--brand-soft)] text-[var(--brand)]">
@@ -99,24 +88,17 @@ export function MobileNav() {
   return (
     <nav className="flex gap-1.5 overflow-x-auto border-b border-[var(--line)] bg-[var(--surface)] px-3 py-2 lg:hidden">
       {items.map((item) => {
-        const active = !item.external && isActive(item.href, pathname);
-        const className = `flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs ${
-          active
-            ? "bg-[var(--brand-soft)] font-semibold text-[var(--brand)]"
-            : "text-[var(--muted)]"
-        }`;
-
-        if (item.external) {
-          return (
-            <a key={item.href} href={item.href} className={className}>
-              <Icon name={item.icon} className="h-4 w-4" />
-              {item.label}
-            </a>
-          );
-        }
-
+        const active = isActive(item.href, pathname);
         return (
-          <Link key={item.href} href={item.href} className={className}>
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs ${
+              active
+                ? "bg-[var(--brand-soft)] font-semibold text-[var(--brand)]"
+                : "text-[var(--muted)]"
+            }`}
+          >
             <Icon name={item.icon} className="h-4 w-4" />
             {item.label}
           </Link>

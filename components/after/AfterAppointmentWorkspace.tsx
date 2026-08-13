@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AskBridgeInlinePrompts } from "@/components/ask/AskBridgeInlinePrompts";
-import { VisitAppLink } from "@/components/VisitAppLink";
 import {
   AddVisitDrawer,
   draftFromVisit,
@@ -305,9 +304,6 @@ export function AfterAppointmentWorkspace() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <VisitAppLink className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-strong)]">
-              Open family note
-            </VisitAppLink>
             <button
               type="button"
               onClick={openAddVisit}
@@ -318,7 +314,7 @@ export function AfterAppointmentWorkspace() {
             </button>
             <Link
               href="/saved"
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--line)] bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-[var(--brand)]/30 hover:bg-[var(--brand-soft)]"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-strong)]"
             >
               <Icon name="bookmark" className="h-4 w-4" />
               Open Saved & Notes

@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AskBridgeInlinePrompts } from "@/components/ask/AskBridgeInlinePrompts";
-import { VisitAppLink } from "@/components/VisitAppLink";
 import { Icon } from "@/components/shell/Icon";
 import { appointmentLabelFromVisit } from "@/lib/appointments";
 import { loadSavedHistory, saveSavedHistory } from "@/lib/savedHistory";
@@ -237,18 +236,13 @@ export function BeforeAppointmentWorkspace() {
               room starts moving fast.
             </p>
           </div>
-          <div className="flex flex-wrap gap-3">
-            <VisitAppLink className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-strong)]">
-              Continue to live visit
-            </VisitAppLink>
-            <Link
-              href="/saved"
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--line)] bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-[var(--brand)]/30 hover:bg-[var(--brand-soft)]"
-            >
-              <Icon name="bookmark" className="h-4 w-4" />
-              Open Saved & Notes
-            </Link>
-          </div>
+          <Link
+            href="/saved"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-strong)]"
+          >
+            <Icon name="bookmark" className="h-4 w-4" />
+            Open Saved & Notes
+          </Link>
         </div>
       </section>
 
@@ -384,14 +378,9 @@ export function BeforeAppointmentWorkspace() {
             </div>
 
             {saveNotice ? (
-              <div className="mt-5 flex flex-wrap items-center gap-3">
-                <div className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--brand-soft)] px-4 py-2 text-sm font-medium text-slate-800">
-                  <Icon name="check" className="h-4 w-4 text-[var(--brand)]" />
-                  {saveNotice}
-                </div>
-                <VisitAppLink className="inline-flex min-h-11 items-center rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-strong)]">
-                  Continue to live visit
-                </VisitAppLink>
+              <div className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--brand-soft)] px-4 py-2 text-sm font-medium text-slate-800">
+                <Icon name="check" className="h-4 w-4 text-[var(--brand)]" />
+                {saveNotice}
               </div>
             ) : null}
           </section>

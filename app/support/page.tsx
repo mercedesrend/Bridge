@@ -38,7 +38,7 @@ export default function SupportPage() {
       />
 
       <Link
-        href="/"
+        href="/home"
         className="inline-flex min-h-11 items-center rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-strong)]"
       >
         Back to dashboard
