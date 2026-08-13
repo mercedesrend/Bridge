@@ -64,17 +64,24 @@ export function Sidebar() {
       </nav>
 
       <div className="m-3 rounded-2xl bg-[var(--brand-soft)] p-4">
-        <p className="text-[13px] font-semibold leading-snug text-[var(--foreground)]">
-          Built for patients.
-        </p>
-        <p className="mt-1 text-[12px] leading-relaxed text-[var(--muted)]">
-          Especially immigrants and families navigating healthcare.
-        </p>
+        <div className="flex items-start gap-3">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white text-[var(--brand)]">
+            <Icon name="settings" className="h-5 w-5" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-[14px] font-semibold leading-snug text-[var(--foreground)]">
+              Settings
+            </p>
+            <p className="mt-1 text-[12px] leading-relaxed text-[var(--muted)]">
+              Profile setup, language preferences, and delete controls all live here now.
+            </p>
+          </div>
+        </div>
         <Link
-          href="/profile"
+          href="/settings"
           className="mt-3 block min-h-11 rounded-xl bg-[var(--brand)] px-3 py-3 text-center text-[13px] font-semibold text-white hover:bg-[var(--brand-strong)]"
         >
-          Find trials
+          Open settings
         </Link>
       </div>
     </aside>
