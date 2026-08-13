@@ -1,194 +1,130 @@
 # Bridge — what to say
 
 Open the deck: `pitch/index.html` (or http://localhost:8000/pitch).
-Arrows or click to advance. `F` fullscreen. `S` speaker notes. `?notes=1` to rehearse with notes on.
+Arrows or click. `F` fullscreen. `S` notes.
 
-Two windows on stage: **deck on the projector**, **phone UI on the laptop** (Chrome, http://localhost:8000). Switch to the laptop on slide 7.
+Two windows: **deck on the projector**, **phone on the laptop** (Chrome, http://localhost:8000). Switch to the phone on the Demo slide.
 
-Set `FORCE_SCRIPTED=true` in `backend/.env` before you walk in. The demo must not wait on wifi.
+Set `FORCE_SCRIPTED=true` before you walk in.
 
----
-
-## Stage setup (5 minutes before)
-
-1. Backend running. Chrome only.
-2. On the phone: tap **Español** → Continue.
-3. Home → **Get me ready**.
-4. Visit: type `type 2 diabetes` (or click the hidden Load demo if you still have it wired). Continue.
-5. Health story: leave it. **Get me ready**. Wait on the 3-questions screen.
-6. Confirm question #2 is on screen: *¿Soy candidata… GLP-1…?*
-7. Deck on slide 1, fullscreen. Notes off unless you want them on a second screen.
-
-If anything is slow, skip the form: Home → **Run 2-min demo**. You will land in captions, not on the questions — so say question #2 out loud before you press it.
+**Skip slides 2, 3, 8, 10.** Stay on 1 → 4 → 5 → 6 (demo) → 7 → 9 → 12. Names on 11 only if someone asks who built what.
 
 ---
 
-## 5 minutes (the one to give)
+## Stage setup
 
-Times are a ceiling. If you run long, cut the AWS slide, not the demo.
+1. App running. Chrome.
+2. Español → Load demo → Get me ready. Land on the 3 questions.
+3. Confirm question #2: *¿Soy candidata… GLP-1…?*
+4. Deck on slide 1.
 
-### Slide 1 — title · 10s
+If the form is slow: Home → **Run 2-min demo**, and say the GLP-1 question out loud before you press it.
+
+---
+
+## The talk (~2.5 minutes)
+
+### Slide 1 — title · 8s
 
 We’re Amber and Mercedes. This is Bridge.
 
-### Slide 2 — the visit · 25s
+### Slide 4 — problem · 20s
 
-Most visits in this country are fifteen minutes.
+*(skip 2 and 3. Go here.)*
 
-A woman sits down. English is her second language. The doctor confirms type 2 diabetes, starts metformin, looks at the door, and says: I have another patient waiting. Any other questions?
+Newer treatments exist. In a fifteen-minute visit, they often are not even asked.
 
-She says: No. I don’t think so.
+Especially when English is not your language. GLP-1 is on the market. She leaves on metformin. Not because she refused — because the question never came up.
 
-That is not confusion. That is being a good guest in a room that isn’t hers.
+That is the problem: treatment observability. You cannot see a treatment that was never offered.
 
-*(pause)*
+### Slide 5 — solution · 20s
 
-### Slide 3 — 25.7 million · 15s
+Bridge is the extra chair in the exam room, in her language.
 
-Twenty-five million people in the United States get care in a language that is not theirs. Spanish is two-thirds of them.
+Not an AI doctor. We never diagnose. Not an interpreter — that is still free by law.
 
-They leave with a plan they did not fully hear. They decide with family after — in a language the chart never used.
+Three questions before. Captions during. After, a family note — and the questions she prepared and never asked.
 
-### Slide 4 — observability · 25s
+### Slide 6 — demo · ~90s
 
-This is also a pharma problem.
+Let me show you.
 
-GLP-1 medicines exist. Uptake is lower in the people with the highest diabetes burden. Not because they refused. Because the question never came up.
+*(phone. stop talking.)*
 
-You cannot observe a treatment you never offered. Silence is not disinterest.
+**On the 3 questions.** This is what she walks in with.
 
-That is why we built this.
+*(point at #2)* Hold this. *Am I a candidate for a GLP-1?* Newer options often are not offered unless you ask.
 
-### Slide 5 — not the doctor · 20s
+**I’m at my appointment → Play demo visit.**
 
-We are not an AI doctor. We never diagnose. We never prescribe.
+Consent first. Captions are not an interpreter.
 
-We are not a certified interpreter. By law she still gets one, for free. We sit next to that person.
+*(A1C line)* Toggle **Plain words / Said**. He said 8.2. The phone unpacked it in Spanish.
 
-We are the extra chair — so she leaves having asked about the treatment she would otherwise never be offered.
+*(last lines)* Another patient waiting. She has no questions. That is the visit.
 
-### Slide 6 — three beats · 20s
+**Visit is over → Write it for my family → What never got asked.**
 
-Before the visit: three questions. Not a binder.
+*(point at the GLP-1 gap. stop talking.)*
 
-In the room: captions in her language, and a sentence she can say out loud — I have two more questions.
+She prepared it. She never asked it. Tonight her daughter asks.
 
-After: a note she can send to her daughter. And the questions that never got asked.
+### Slide 7 — stack · 15s
 
-### Slide 7 — demo · ~2 minutes
+Bedrock writes the brief and the note. Translate does captions that cannot wait on a model. Comprehend Medical unpacks the jargon from what was said. PubMed and ClinicalTrials.gov are the sources — we do not invent citations.
 
-Let me show you the room.
+Consent is a 403 without it. Nothing stored. No name.
 
-*(switch to the phone. stop talking for a beat.)*
+### Slide 9 — who pays · 12s
 
-**On the 3-questions screen**
+Clinics: language access, visits that finish on time. Pharma: proof the option was even asked, in Spanish, in fifteen minutes. Patients do not pay.
 
-This is what she walks in with. Three questions, because the visit is fifteen minutes.
+### Slide 12 — close · 8s
 
-*(point at #2)*
-
-Hold this one. *Am I a candidate for a GLP-1 medicine, or is metformin the right first step?* Newer options often are not offered unless you ask.
-
-**Tap I’m at my appointment → Play demo visit** (or Simulate, then let it run — about 15 seconds)
-
-Consent is a real gate. Captions do not turn on until she says yes. This is not a replacement for an interpreter.
-
-*(when the A1C line appears)* Toggle **Plain words** / **Said**. He said 8.2. The phone unpacked it in Spanish.
-
-*(last two lines)* He says another patient is waiting. She says she has no questions. That is the visit.
-
-**The visit is over → Write it for my family → What never got asked**
-
-*(point at the GLP-1 gap. this is the whole talk. let them read it.)*
-
-She prepared it. She never asked it. Bridge caught the gap. Tonight her daughter asks.
-
-### Slide 8 — the gap · 15s
-
-That 90 seconds is the company. Everything else is setup.
-
-### Slide 9 — AWS · 20s
-
-Amazon Bedrock writes the brief and the family note. Amazon Translate does captions that cannot wait on a model. Comprehend Medical pulls the jargon out of what the doctor actually said.
-
-We did not bolt on HealthOmics. That is a genomics pipeline. This is a 15-minute visit.
-
-Sessions die with the process. No name. No immigration questions.
-
-### Slide 10 — close · 20s
-
-Safety-net clinics pay for language access and visits that finish on time.
-
-Pharma pays for proof the option was even asked — in Spanish, in fifteen minutes.
-
-We are not the doctor. We are not the interpreter. We are the extra chair.
+She sends it home tonight. The daughter asks. We are the extra chair.
 
 Thank you.
 
 ---
 
-## If they cut you to 3 minutes
+## If they cut you shorter
 
-Keep slides 2, 4, 5, 7, 10.
-
-Say the scene (slide 2). Say silence is not disinterest (slide 4). Draw the boundary (slide 5). Demo: point at GLP-1, Skip to end, open the gap. Close on extra chair.
-
-Do not open with the 25.7 million slide if you are short. The scene does more work.
+Problem (slide 4). Solution (slide 5). Demo: GLP-1 → Skip to end → gap. Close.
 
 ---
 
 ## If the app dies
 
-Stay on slide 7 and narrate. You already have the lines:
+Stay on Demo and narrate:
 
 - She prepared: am I a candidate for a GLP-1.
 - Doctor: another patient waiting.
 - She: I don’t think so.
-- After: that question is still open. Send it to your daughter.
+- After: that question is still open.
 
-Then jump to slide 10. Do not debug on stage.
+Then jump to close. Do not debug.
 
 ---
 
 ## Q&A — answer then stop
 
-**Are you replacing interpreters?**
-No. Section 1557 still requires meaningful access. Captions are a comprehension aid. The rights card says the interpreter is free. Clinics will block us if we pretend otherwise.
+**Replacing interpreters?** No. 1557 still applies. Captions are a comprehension aid.
 
-**How is this not Lotus?**
-Lotus is an AI doctor. We never diagnose. Different product, different liability, different buyer.
+**Lotus?** Opposite product. We never diagnose.
 
-**HIPAA?**
-Hackathon: in-memory sessions, nothing at rest. Production: BAA, no immigration data, phone-held. We are not a medical record.
+**HIPAA?** Hackathon: in-memory. Production: BAA, no immigration data.
 
-**Does this make the visit longer?**
-No. Three questions. The line is “I have two more questions,” not a new conversation. If we add time, the clinic bans the phone.
+**Makes visits longer?** No. Three questions.
 
-**Who pays?**
-Beachhead: FQHC / safety-net, language access. Second check: pharma, treatment observability for GLP-1 and the next class.
+**Who pays?** FQHC first. Pharma second. Not the patient.
 
-**Is translation clinically validated?**
-Not yet. The UI says so. That is why we do not replace the interpreter.
+**HealthOmics?** Wrong job. Genomics pipelines. We used Bedrock, Translate, Comprehend Medical.
 
-**Why scripted captions?**
-Venue mics fail. Every live path has a scripted twin. Bedrock when we can; fixture when we can’t. The gap is the same.
-
-**Why not HealthOmics?**
-Wrong job. HealthOmics is genomics pipelines. We used Bedrock, Translate, and Comprehend Medical because they make a 15-minute visit faster, not because they were on the poster.
-
-**Outcomes?**
-The metric is high-priority questions asked, and portal follow-ups sent. Today you see the score on the After screen: prepared vs still open.
-
-**STT?**
-Browser speech-to-text in Chrome. On stage we simulate. Production path is medical-grade transcription.
+**Scripted captions?** Venue mics fail. The gap is the same.
 
 ---
 
 ## Do not say
 
-- “AI doctor,” “we diagnose,” “we prescribe.”
-- “We replace interpreters.”
-- “HealthOmics” unless someone asks, and then only to say we did not use it.
-- A long AWS architecture tour. Three services, then sit down.
-- Fake testimonials, fake photos, fake numbers.
-- “We’re excited to present.” Start in the room.
+“AI doctor,” “we diagnose,” “we prescribe,” “we replace interpreters.” Do not open with 25.7 million or a clinic census. Do not tour AWS. Start with the problem.
