@@ -3,317 +3,477 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Bridge — pitch</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<title>Bridge — AWS Biopharma Hack Day</title>
 <style>
-  :root {
-    --bg: #050505;
-    --fg: #f4f4f4;
-    --muted: #8a8a8a;
-    --dim: #3a3a3a;
-    --line: #222;
-    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  }
-  * { box-sizing: border-box; }
-  html, body { height: 100%; margin: 0; }
-  body {
-    font-family: var(--sans);
-    background: var(--bg);
-    color: var(--fg);
-    -webkit-font-smoothing: antialiased;
-    overflow: hidden;
-  }
-  .deck { height: 100%; position: relative; }
-  .slide {
-    display: none;
-    height: 100%;
-    padding: 8vh 8vw 12vh;
-    flex-direction: column;
-    justify-content: center;
-  }
-  .slide.is-on { display: flex; }
-  .kicker {
-    font-size: 14px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin: 0 0 28px;
-    font-weight: 500;
-  }
-  h1 {
-    font-size: clamp(40px, 6.4vw, 92px);
-    font-weight: 600;
-    letter-spacing: -0.045em;
-    line-height: 1.05;
-    margin: 0;
-  }
-  h1 em { font-style: normal; color: var(--muted); }
-  .lede {
-    font-size: clamp(20px, 2.2vw, 32px);
-    line-height: 1.35;
-    color: var(--muted);
-    max-width: 18em;
-    margin: 28px 0 0;
-    font-weight: 400;
-  }
-  .stat {
-    font-size: clamp(72px, 14vw, 180px);
-    font-weight: 600;
-    letter-spacing: -0.06em;
-    line-height: 0.9;
-    margin: 0;
-  }
-  .brand-row {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 36px;
-  }
-  .brand-mark { width: 48px; height: 48px; color: var(--fg); }
-  .brand-name { font-size: 22px; font-weight: 600; letter-spacing: -0.03em; }
-  .foot {
-    position: absolute;
-    left: 8vw; right: 8vw; bottom: 4.5vh;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: var(--dim);
-    font-size: 13px;
-    letter-spacing: 0.04em;
-    pointer-events: none;
-  }
-  .dots { display: flex; gap: 6px; }
-  .dots i {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--fg); opacity: 0.18;
-  }
-  .dots i.is-on { opacity: 1; }
-  .list { list-style: none; padding: 0; margin: 12px 0 0; }
-  .list li {
-    font-size: clamp(22px, 2.6vw, 36px);
-    letter-spacing: -0.03em;
-    padding: 16px 0;
-    border-top: 1px solid var(--line);
-    display: grid;
-    grid-template-columns: 140px 1fr;
-    gap: 24px;
-    align-items: baseline;
-  }
-  .list li:last-child { border-bottom: 1px solid var(--line); }
-  .list strong { font-weight: 600; }
-  .list span { color: var(--muted); font-weight: 400; }
-  .split {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8vw;
-    align-items: start;
-  }
-  .split h1 { font-size: clamp(32px, 4vw, 56px); }
-  .no { color: var(--muted); }
-  .yes { }
-  .tiny { font-size: 15px; color: var(--dim); margin-top: 40px; max-width: 42em; line-height: 1.5; }
-  .demo-mark {
-    width: 12px; height: 12px; border-radius: 50%;
-    background: #c44; display: inline-block;
-    margin-right: 10px; vertical-align: middle;
-  }
-  .notes {
-    display: none;
-    position: absolute;
-    left: 0; right: 0; bottom: 0;
-    background: #111;
-    border-top: 1px solid #2a2a2a;
-    padding: 16px 8vw 20px;
-    font-size: 15px;
-    line-height: 1.45;
-    color: #c8c8c8;
-    max-height: 28vh;
-    overflow: auto;
-  }
-  body.show-notes .notes { display: block; }
-  body.show-notes .slide { padding-bottom: 32vh; }
-  body.show-notes .foot { bottom: 30vh; }
-  .help {
-    position: absolute;
-    top: 18px; right: 24px;
-    font-size: 12px;
-    color: var(--dim);
-    z-index: 2;
-  }
-  .help kbd {
-    font: 11px/1 var(--sans);
-    border: 1px solid #333;
-    border-radius: 4px;
-    padding: 2px 6px;
-    color: #666;
-  }
-  @media print {
-    html, body { height: auto; overflow: visible; background: #fff; color: #111; }
-    .help, .foot, .notes { display: none !important; }
-    .slide {
-      display: flex !important;
-      height: 100vh;
-      page-break-after: always;
-      color: #111;
-    }
-    .lede, .list span, .kicker, .no { color: #555; }
-    .list li { border-color: #ddd; }
-  }
+:root{
+  /* blue · purple · white · black */
+  --ink:#08080F;
+  --ink-2:#3A3F55;
+  --mute:#787E96;
+  --paper:#FFFFFF;
+  --wash:#F5F6FB;
+  --rule:#E1E3EE;
+
+  --blue:#2F5BEA;
+  --blue-soft:#E8EDFE;
+  --violet:#7C3AED;
+  --violet-soft:#F1EAFE;
+  --violet-lift:#A78BFA;
+
+  /* accent roles used across slides */
+  --gold:var(--violet-lift);
+  --gold-soft:var(--violet-soft);
+  --clay:var(--violet);
+  --teal:var(--blue);
+  --teal-soft:var(--blue-soft);
+
+  --sans: ui-sans-serif, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--ink);
+  color:var(--ink);
+  font-family:var(--sans);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+.deck{position:fixed;inset:0}
+.slide{
+  position:absolute;inset:0;
+  display:none;
+  padding:8vh 8vw 12vh;
+  flex-direction:column;
+  justify-content:center;
+  background:var(--paper);
+}
+.slide.is-on{display:flex}
+.slide.dark{background:var(--ink);color:var(--paper)}
+.slide.wash{background:var(--wash)}
+
+.slide.is-on > *{animation:rise .42s cubic-bezier(.2,.7,.3,1) backwards}
+.slide.is-on > *:nth-child(1){animation-delay:.02s}
+.slide.is-on > *:nth-child(2){animation-delay:.10s}
+.slide.is-on > *:nth-child(3){animation-delay:.18s}
+.slide.is-on > *:nth-child(4){animation-delay:.26s}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.slide.is-on > *{animation:none}}
+
+.eyebrow{
+  font-size:clamp(11px,1.02vw,14px);
+  text-transform:uppercase;letter-spacing:.19em;font-weight:800;
+  color:var(--teal);margin-bottom:3vh;
+}
+.dark .eyebrow{color:var(--gold)}
+.wash .eyebrow{color:var(--clay)}
+
+h1{font-size:clamp(44px,7.4vw,116px);line-height:.94;letter-spacing:-.04em;font-weight:800}
+h2{font-size:clamp(30px,4.6vw,70px);line-height:1.04;letter-spacing:-.032em;font-weight:800}
+h3{font-size:clamp(19px,2vw,29px);line-height:1.2;letter-spacing:-.02em;font-weight:800}
+
+.sub{
+  font-size:clamp(17px,1.85vw,27px);line-height:1.45;
+  color:var(--ink-2);max-width:34ch;margin-top:3vh;
+}
+.dark .sub{color:#B4B8CE}
+.sub.tight{max-width:22ch}
+.sub.wide{max-width:44ch}
+.cite{font-size:clamp(11px,1vw,15px);color:var(--mute);margin-top:2.6vh;letter-spacing:.01em}
+.dark .cite{color:#71778F}
+
+.hl{color:var(--gold)}
+.hl-clay{color:var(--clay)}
+
+.quote{
+  font-size:clamp(42px,8.6vw,138px);line-height:.98;letter-spacing:-.045em;
+  font-weight:800;max-width:15ch;
+}
+.quote .mark-q{color:var(--gold)}
+.attrib{margin-top:4.5vh;font-size:clamp(15px,1.6vw,23px);color:#B4B8CE;max-width:44ch;line-height:1.55}
+
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:3vw;margin-top:5vh}
+.stat{border-top:4px solid var(--teal);padding-top:2.2vh}
+.stat:nth-child(2){border-color:var(--gold)}
+.stat:nth-child(3){border-color:#1E3A8A}
+.stat-n{font-size:clamp(38px,5.4vw,80px);font-weight:800;letter-spacing:-.045em;line-height:.95;font-variant-numeric:tabular-nums}
+.stat-l{font-size:clamp(13px,1.3vw,19px);color:var(--ink-2);margin-top:1.4vh;line-height:1.45}
+
+.phases{display:grid;grid-template-columns:repeat(3,1fr);gap:2.2vw;margin-top:5vh}
+.phase{background:var(--paper);border:1px solid var(--rule);border-radius:14px;padding:3vh 2vw;position:relative;overflow:hidden}
+.phase::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:var(--teal)}
+.phase:nth-child(2)::before{background:var(--gold)}
+.phase:nth-child(3)::before{background:#1E3A8A}
+.phase-k{font-size:clamp(11px,1.02vw,14px);text-transform:uppercase;letter-spacing:.17em;font-weight:800;color:var(--mute);margin-bottom:1.6vh}
+.phase h3{margin-bottom:1.2vh}
+.phase p{font-size:clamp(14px,1.4vw,20px);line-height:1.5;color:var(--ink-2)}
+
+.rows{margin-top:4.5vh}
+.row{display:grid;grid-template-columns:minmax(0,15ch) 1fr;gap:3.5vw;padding:3vh 0;border-top:1px solid var(--rule);align-items:baseline}
+.row:last-child{border-bottom:1px solid var(--rule)}
+.row-k{font-size:clamp(17px,2.1vw,31px);font-weight:800;letter-spacing:-.022em}
+.row-b{font-size:clamp(14px,1.45vw,21px);line-height:1.5;color:var(--ink-2)}
+.tag{display:inline-block;font-size:clamp(10px,.92vw,13px);text-transform:uppercase;letter-spacing:.13em;font-weight:800;padding:4px 10px;border-radius:999px;margin-left:8px;vertical-align:middle}
+.tag-gold{background:var(--violet-soft);color:#5B21B6}
+.tag-teal{background:var(--teal-soft);color:var(--teal)}
+
+.built{display:grid;grid-template-columns:repeat(2,1fr);gap:2.2vh 3vw;margin-top:4.5vh}
+.built div{font-size:clamp(15px,1.55vw,23px);line-height:1.4;padding-left:1.6ch;position:relative;color:var(--ink-2)}
+.built div::before{content:"";position:absolute;left:0;top:.62em;width:8px;height:8px;border-radius:2px;background:var(--teal)}
+.built div strong{color:var(--ink);font-weight:700}
+
+.team{display:grid;grid-template-columns:repeat(2,1fr);gap:3vw;margin-top:5vh}
+.member{border-left:4px solid var(--violet);padding-left:1.6vw}
+.member:nth-child(2){border-left-color:var(--blue)}
+.member .n{font-size:clamp(21px,2.6vw,38px);font-weight:800;letter-spacing:-.025em}
+.member .r{font-size:clamp(14px,1.4vw,20px);color:var(--ink-2);margin-top:1vh;line-height:1.45}
+
+.strip{display:flex;flex-wrap:wrap;gap:10px;margin-top:4vh}
+.chip{font-size:clamp(12px,1.15vw,17px);font-weight:700;padding:9px 16px;border-radius:999px;background:var(--teal-soft);color:var(--teal)}
+.chip.g{background:var(--violet-soft);color:#5B21B6}
+
+.demo-word{font-size:clamp(72px,15vw,236px);letter-spacing:-.05em;font-weight:800;line-height:.9}
+.demo-word em{font-style:normal;color:var(--gold)}
+
+.mark .seat{fill:currentColor}
+.mark .open{fill:none;stroke:currentColor;stroke-width:5;stroke-dasharray:11 9;stroke-linecap:round;opacity:.4}
+.mark .span{stroke:var(--gold);stroke-width:5;stroke-linecap:round}
+.slide.is-on .mark.fills .open{animation:fill .6s ease-out .85s forwards}
+@keyframes fill{to{stroke:var(--gold);opacity:1;stroke-dasharray:200 0}}
+@media (prefers-reduced-motion:reduce){
+  .slide.is-on .mark.fills .open{animation:none;stroke:var(--gold);opacity:1;stroke-dasharray:200 0}
+}
+
+.title-wrap{display:flex;flex-direction:column;gap:4.5vh}
+.byline{font-size:clamp(13px,1.3vw,19px);color:#949AB4;line-height:1.65}
+.byline strong{color:var(--paper);font-weight:700}
+
+.hud{
+  position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-between;
+  padding:2.4vh 8vw;font-size:11px;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--mute);font-weight:800;pointer-events:none;z-index:10;
+}
+.hud.on-dark{color:#5F6580}
+.progress{position:fixed;top:0;left:0;height:4px;background:var(--gold);transition:width .35s cubic-bezier(.2,.7,.3,1);z-index:20}
+
+.notes{
+  position:fixed;inset:auto 0 0 0;background:#05050C;color:#fff;
+  padding:3.4vh 8vw;font-size:clamp(14px,1.35vw,19px);line-height:1.6;
+  transform:translateY(101%);transition:transform .25s;z-index:40;
+  max-height:54vh;overflow-y:auto;border-top:4px solid var(--gold);
+}
+.notes.is-up{transform:none}
+.notes h4{font-size:11px;letter-spacing:.19em;text-transform:uppercase;color:var(--gold);margin-bottom:1.6vh;font-weight:800}
+.notes p{margin-bottom:1.2vh;max-width:82ch;color:#C9CCDD}
+.notes p:last-child{margin-bottom:0}
+.notes em{color:#fff;font-style:normal;font-weight:700}
+
+.help{position:fixed;top:2.6vh;right:8vw;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);font-weight:800;z-index:10}
+.help.on-dark{color:#5F6580}
+
+@media (max-width:800px){
+  .phases,.stat-row,.built,.team{grid-template-columns:1fr;gap:2.4vh}
+  .row{grid-template-columns:1fr;gap:1vh}
+  .help{display:none}
+}
 </style>
 </head>
 <body>
-<div class="help">← → <kbd>F</kbd> fullscreen · <kbd>S</kbd> notes</div>
+
+<div class="progress" id="progress"></div>
 
 <div class="deck" id="deck">
 
-  <section class="slide is-on" data-notes="10 seconds. Names, then the line. Do not explain the product yet.">
-    <div class="brand-row">
-      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
-        <path d="M7 20h6M8 20v6M12 20v6M9 20V10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M19 20h6M20 20v6M24 20v6M23 20V10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M13 20h6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        <circle cx="9" cy="7.2" r="2.1" fill="none" stroke="currentColor" stroke-width="1.5"/>
-        <path d="M9 9.4v8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- 1 · TITLE -->
+  <section class="slide dark"
+    data-notes="<p>Two seconds of silence, then the one-liner. Do not explain the product yet.</p><p><em>Bridge. The extra chair in the exam room, in your language.</em></p>">
+    <div class="title-wrap">
+      <svg class="mark" width="164" height="90" viewBox="0 0 170 92" style="color:#fff" aria-label="Two chairs with a span between them">
+        <circle class="seat" cx="30" cy="18" r="11"/>
+        <rect class="seat" x="14" y="36" width="32" height="8" rx="4"/>
+        <rect class="seat" x="14" y="44" width="7" height="30" rx="3.5"/>
+        <rect class="seat" x="39" y="44" width="7" height="30" rx="3.5"/>
+        <line class="span" x1="58" y1="40" x2="112" y2="40"/>
+        <rect class="open" x="124" y="36" width="32" height="8" rx="4"/>
+        <rect class="open" x="124" y="44" width="7" height="30" rx="3.5"/>
+        <rect class="open" x="149" y="44" width="7" height="30" rx="3.5"/>
       </svg>
-      <span class="brand-name">Bridge</span>
-    </div>
-    <h1>The extra chair<br>in the exam room.</h1>
-    <p class="lede">Not the doctor. Not the interpreter. The question that never gets asked.</p>
-  </section>
-
-  <section class="slide" data-notes="25 seconds. Tell it like a scene. End on “good guest.” Pause.">
-    <p class="kicker">A 15-minute visit</p>
-    <h1>She says she has<br>no questions.</h1>
-    <p class="lede">That is not the truth. That is being a good guest in a room that isn’t hers.</p>
-  </section>
-
-  <section class="slide" data-notes="15 seconds. Read the number. One sentence. Do not stack stats.">
-    <p class="stat">25.7M</p>
-    <p class="lede">people in the US get care in a language that is not theirs. Spanish is two-thirds of them.</p>
-  </section>
-
-  <section class="slide" data-notes="25 seconds. This is the pharma / observability slide. Name GLP-1. “Silence is not disinterest.”">
-    <p class="kicker">Treatment observability</p>
-    <h1>Newer treatments exist.<br><em>They are not told.</em></h1>
-    <p class="lede">GLP-1 uptake is lower where diabetes burden is higher — not because patients refused. Because the question never came up.</p>
-  </section>
-
-  <section class="slide" data-notes="20 seconds. Draw the boundary. If a judge hears “AI doctor,” you lost.">
-    <div class="split">
       <div>
-        <p class="kicker no">Not this</p>
-        <h1 class="no">AI doctor.<br>AI interpreter.</h1>
+        <h1>Bridge</h1>
+        <p class="sub">The extra chair in the exam room — <span class="hl">in your language.</span></p>
       </div>
-      <div>
-        <p class="kicker">This</p>
-        <h1>The extra chair.<br>So she asks.</h1>
-      </div>
+      <p class="byline">
+        <strong>Amber Toor</strong> &nbsp;·&nbsp; <strong>Mercedes Rend</strong><br>
+        AWS Biopharma Hack Day · Treatment observability for patients
+      </p>
     </div>
   </section>
 
-  <section class="slide" data-notes="20 seconds. Three beats only. Then go to the phone.">
-    <p class="kicker">One visit</p>
-    <ul class="list">
-      <li><strong>Before</strong><span>3 questions. Not a binder.</span></li>
-      <li><strong>During</strong><span>“I have two more questions.” Captions in her language.</span></li>
-      <li><strong>After</strong><span>A note for her daughter. And what never got asked.</span></li>
-    </ul>
+  <!-- 2 · THE SCENE -->
+  <section class="slide dark"
+    data-notes="<p>Say it in her voice. Do not read it like a quote.</p><p>Three weeks for a fifteen-minute visit. Newly diagnosed with type 2 diabetes. She had a question written down about a newer medicine.</p><p>The doctor said another patient was waiting. <em>She said this.</em></p><p>Pause. Then: that is not confusion. That is a polite person in a room that isn't hers.</p>">
+    <p class="eyebrow">Minute 14 of a 15-minute visit</p>
+    <p class="quote"><span class="mark-q">&ldquo;</span>No, I don&rsquo;t think so.<span class="mark-q">&rdquo;</span></p>
+    <p class="attrib">Her answer when the doctor asked if she had any other questions. She had one written down — about a treatment she was never offered.</p>
   </section>
 
-  <section class="slide" data-notes="Switch to the phone. Do not keep talking over the first screen. Point at question 2, then play the visit, then land on the gap.">
-    <p class="kicker"><span class="demo-mark"></span> Live</p>
-    <h1>Watch the phone.</h1>
-    <p class="lede">Spanish-speaking. First-gen. Type 2 diabetes. She prepared a GLP-1 question.</p>
+  <!-- 3 · THE PROBLEM, SIZED -->
+  <section class="slide"
+    data-notes="<p>This is not one woman.</p><p>25.7 million US residents aged five and up have limited English proficiency — about 8 percent of the country. 63 percent speak Spanish.</p><p>They are roughly three times more likely to be uninsured.</p><p><em>Source: KFF analysis, 2021 ACS.</em></p>">
+    <p class="eyebrow">The problem</p>
+    <h2>She is <span class="hl-clay">25.7 million</span> people.</h2>
+    <div class="stat-row">
+      <div class="stat">
+        <div class="stat-n">25.7M</div>
+        <div class="stat-l">US residents 5+ with limited English proficiency — about 8% of the country</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">63%</div>
+        <div class="stat-l">of them speak Spanish at home</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">29%</div>
+        <div class="stat-l">are uninsured, versus 9% of English-proficient adults</div>
+      </div>
+    </div>
+    <p class="cite">KFF analysis of the 2021 American Community Survey</p>
   </section>
 
-  <section class="slide" data-notes="20 seconds after the gap screen. This is the company. Then sit down almost — AWS is one breath.">
-    <p class="kicker">The gap</p>
-    <h1>Prepared.<br><em>Never asked.</em></h1>
-    <p class="lede">She will send this to her daughter tonight. The daughter will ask.</p>
+  <!-- 4 · THE INSIGHT -->
+  <section class="slide wash"
+    data-notes="<p>Here is the thing that gets read backwards.</p><p>GLP-1 uptake is lower in disadvantaged and minority groups — despite a higher diabetes burden. The usual read is that these patients decline newer treatments.</p><p><em>Nobody is measuring whether the option was ever raised in the room.</em></p><p>That gap — between what exists and what gets said out loud in fifteen minutes — is the product.</p>">
+    <p class="eyebrow">The insight</p>
+    <h2>The option exists.<br>It just never <span class="hl-clay">gets said out loud.</span></h2>
+    <p class="sub wide">GLP-1 uptake is lower in disadvantaged and minority groups despite a higher diabetes burden. Nobody measures whether the treatment was raised in the visit at all.</p>
+    <p class="cite">Diabetologia, 2023</p>
   </section>
 
-  <section class="slide" data-notes="20 seconds. Name Bedrock, Translate, Comprehend Medical. Say why not HealthOmics. Privacy one line.">
-    <p class="kicker">In this room, on AWS</p>
-    <ul class="list">
-      <li><strong>Bedrock</strong><span>The brief and the family note. Claude. Degrades if the wifi dies.</span></li>
-      <li><strong>Translate</strong><span>Captions that cannot wait on a model.</span></li>
-      <li><strong>Comprehend Medical</strong><span>Jargon out of what the doctor actually said.</span></li>
-    </ul>
-    <p class="tiny">Not HealthOmics — that is a genomics pipeline. This is a 15-minute visit. Nothing stored. No name. No immigration questions. Interpreter still free by law.</p>
+  <!-- 5 · THE SOLUTION -->
+  <section class="slide"
+    data-notes="<p>Bridge sits with the patient across the whole visit.</p><p>Three questions before — not thirty, because the visit is fifteen minutes. Captions during. And after, the gap check: what she prepared and never got to ask.</p><p><em>Every study is a question to ask, never &ldquo;you qualify.&rdquo;</em></p>">
+    <p class="eyebrow">The product</p>
+    <h2>Three questions in. One answer out.</h2>
+    <div class="phases">
+      <div class="phase">
+        <div class="phase-k">Before</div>
+        <h3>Get ready</h3>
+        <p>Three questions in her language, grounded in PubMed and ClinicalTrials.gov. Every claim carries a real source.</p>
+      </div>
+      <div class="phase">
+        <div class="phase-k">During</div>
+        <h3>Follow along</h3>
+        <p>Live captions with the jargon unpacked. The phone is not listening until she says yes.</p>
+      </div>
+      <div class="phase">
+        <div class="phase-k">After</div>
+        <h3>The gap check</h3>
+        <p>What she prepared and never got to ask — written so she can send it to her family tonight.</p>
+      </div>
+    </div>
   </section>
 
-  <section class="slide" data-notes="25 seconds. Who writes the check, then the last line. Stop talking. Thank you.">
-    <p class="kicker">Who pays</p>
-    <ul class="list">
-      <li><strong>Clinics</strong><span>Language access. Visits that finish on time.</span></li>
-      <li><strong>Pharma</strong><span>Proof the option was even asked — in Spanish, in 15 minutes.</span></li>
-    </ul>
-    <h1 style="margin-top:48px;font-size:clamp(28px,3.4vw,48px)">We are the extra chair.</h1>
+  <!-- 6 · DEMO -->
+  <section class="slide dark"
+    data-notes="<p>Switch to the app. Nothing to read here.</p><p><em>Path:</em> Español → Load demo → Get me ready → hold the GLP-1 question → I'm at my appointment → Play demo visit → Visit is over → Write it for my family → What never got asked.</p><p>Land on the gap. Then stop talking.</p><p><em>If it dies: narrate the gap from this slide. Do not debug on stage.</em></p>">
+    <p class="eyebrow">Live product</p>
+    <p class="demo-word">Demo<em>.</em></p>
+    <p class="sub tight">Spanish-speaking, newly diagnosed, type 2 diabetes.</p>
+  </section>
+
+  <!-- 7 · HOW IT WORKS -->
+  <section class="slide wash"
+    data-notes="<p>One breath on this slide. Do not tour the architecture.</p><p>Bedrock for the model, Translate and Comprehend Medical for language and clinical terms, PubMed and ClinicalTrials.gov for evidence.</p><p>Sessions are in memory only. Consent is enforced server-side — recording returns a 403 without it. It is not a checkbox you can skip.</p>">
+    <p class="eyebrow">Under the hood</p>
+    <h2>Built to be trusted, not just to work.</h2>
+    <div class="rows">
+      <div class="row">
+        <div class="row-k">Grounded</div>
+        <p class="row-b">Every claim traces to PubMed or ClinicalTrials.gov. The model summarizes retrieved evidence — it never generates a citation.</p>
+      </div>
+      <div class="row">
+        <div class="row-k">Consented</div>
+        <p class="row-b">Recording is enforced server-side. The API returns 403 without consent, so it cannot be skipped in the interface.</p>
+      </div>
+      <div class="row">
+        <div class="row-k">Nothing kept</div>
+        <p class="row-b">Sessions live in memory and die with the process. No name, no address, no insurance, no immigration status.</p>
+      </div>
+    </div>
+    <div class="strip">
+      <span class="chip">Amazon Bedrock</span>
+      <span class="chip">Amazon Translate</span>
+      <span class="chip">Comprehend Medical</span>
+      <span class="chip g">PubMed</span>
+      <span class="chip g">ClinicalTrials.gov</span>
+    </div>
+  </section>
+
+  <!-- 8 · MARKET -->
+  <section class="slide"
+    data-notes="<p>We start where the obligation already exists.</p><p>Roughly 1,400 federally qualified health center organizations serve about 32 million patients a year, and they disproportionately see this population.</p><p>Section 1557 already requires meaningful language access. We are not creating the requirement — we are making it measurable.</p>">
+    <p class="eyebrow">Where we start</p>
+    <h2>Clinics that already carry the obligation.</h2>
+    <div class="stat-row">
+      <div class="stat">
+        <div class="stat-n">~1,400</div>
+        <div class="stat-l">federally qualified health center organizations across the US</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">~32M</div>
+        <div class="stat-l">patients they serve each year, disproportionately LEP</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">1557</div>
+        <div class="stat-l">the ACA section already requiring meaningful language access</div>
+      </div>
+    </div>
+    <p class="cite">HRSA Health Center Program data</p>
+  </section>
+
+  <!-- 9 · BUSINESS MODEL -->
+  <section class="slide wash"
+    data-notes="<p>Patients do not pay twenty dollars a month to be heard. Say that plainly.</p><p>Clinics pay because 1557 is an obligation and visits that finish on time are money.</p><p><em>Pharma is the interesting one.</em> Today there is no way to prove the conversation happened — not that she was prescribed, but that she was asked. In her language. Inside fifteen minutes.</p>">
+    <p class="eyebrow">Business model</p>
+    <h2>Two buyers. Neither is the patient.</h2>
+    <div class="rows">
+      <div class="row">
+        <div class="row-k">Clinics <span class="tag tag-teal">Start here</span></div>
+        <p class="row-b">Per-site license. Section 1557 language access, and visits that finish on time.</p>
+      </div>
+      <div class="row">
+        <div class="row-k">Pharma <span class="tag tag-gold">The wedge</span></div>
+        <p class="row-b">Proof the option was raised — in Spanish, inside fifteen minutes. Nobody can measure this today.</p>
+      </div>
+      <div class="row">
+        <div class="row-k">Not patients</div>
+        <p class="row-b">This population does not pay a subscription to be heard. It has to be free at the point of use.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 · WHAT WE BUILT -->
+  <section class="slide"
+    data-notes="<p>Everything you just saw was built today, working, not mocked.</p><p>Name the one limit before a judge finds it: live captions use the browser speech API and need Chrome. On stage we run the scripted visit — same caption interface, no microphone risk.</p>">
+    <p class="eyebrow">Shipped today</p>
+    <h2>All of it runs.</h2>
+    <div class="built">
+      <div><strong>Language-first flow</strong> — English and Spanish across the whole app</div>
+      <div><strong>Live captions</strong> — clinical terms unpacked inline</div>
+      <div><strong>Grounded briefs</strong> — real PubMed and trial sources attached</div>
+      <div><strong>Gap check</strong> — prepared questions matched against what was said</div>
+      <div><strong>Family note</strong> — forwardable, plus copy for the patient portal</div>
+      <div><strong>Server-side consent</strong> — enforced, not a UI checkbox</div>
+    </div>
+    <p class="cite">Live captions require Chrome. On stage we run the scripted visit — same interface, no microphone dependency.</p>
+  </section>
+
+  <!-- 11 · TEAM -->
+  <section class="slide wash"
+    data-notes="<p>Ten seconds. Names, what each of you owns, why you two are the right pair for this.</p><p><em>The line that matters:</em> one of us builds the systems, one of us knows the clinic. Neither of us needed the other to explain why this problem exists.</p><p>If either of you has lived experience translating for family — say it here, in one sentence. It is the strongest credential in the room for this product.</p>">
+    <p class="eyebrow">Team</p>
+    <h2>Two builders, one waiting room.</h2>
+    <div class="team">
+      <div class="member">
+        <div class="n">Amber Toor</div>
+        <div class="r">AI &amp; computer science. Built the visit companion — the language-first flow, live captions, and the gap check.</div>
+      </div>
+      <div class="member">
+        <div class="n">Mercedes Rend</div>
+        <div class="r">Biomedical sciences. Built the trial matcher — criterion-by-criterion eligibility, framed as a question to ask, never a verdict.</div>
+      </div>
+    </div>
+    <p class="sub wide">One of us builds the systems. One of us knows the clinic. Neither of us needed the other to explain why this problem exists.</p>
+  </section>
+
+  <!-- 12 · CLOSE -->
+  <section class="slide dark"
+    data-notes="<p>She sends that note to her daughter tonight.</p><p><em>The daughter asks.</em></p><p>That is the whole company. Then stop talking.</p>">
+    <div class="title-wrap">
+      <svg class="mark fills" width="164" height="90" viewBox="0 0 170 92" style="color:#fff" aria-hidden="true">
+        <circle class="seat" cx="30" cy="18" r="11"/>
+        <rect class="seat" x="14" y="36" width="32" height="8" rx="4"/>
+        <rect class="seat" x="14" y="44" width="7" height="30" rx="3.5"/>
+        <rect class="seat" x="39" y="44" width="7" height="30" rx="3.5"/>
+        <line class="span" x1="58" y1="40" x2="112" y2="40"/>
+        <rect class="open" x="124" y="36" width="32" height="8" rx="4"/>
+        <rect class="open" x="124" y="44" width="7" height="30" rx="3.5"/>
+        <rect class="open" x="149" y="44" width="7" height="30" rx="3.5"/>
+      </svg>
+      <h2>She sends it home tonight.<br><span class="hl">The daughter asks.</span></h2>
+      <p class="sub">Bridge — the extra chair in the exam room.</p>
+    </div>
   </section>
 
 </div>
 
-<div class="foot">
-  <span>Bridge · AWS Biopharma Hack Day</span>
-  <span class="dots" id="dots"></span>
-  <span id="pos">1 / 10</span>
+<div class="hud" id="hud">
+  <span>Bridge</span>
+  <span id="counter">1 / 12</span>
 </div>
-<aside class="notes" id="notes"></aside>
+
+<div class="help" id="help">← → move &nbsp;·&nbsp; F full &nbsp;·&nbsp; S notes</div>
+
+<div class="notes" id="notes">
+  <h4>Speaker notes</h4>
+  <div id="notes-body"></div>
+</div>
 
 <script>
-  const slides = [...document.querySelectorAll(".slide")];
-  const dots = document.getElementById("dots");
-  const pos = document.getElementById("pos");
-  const notes = document.getElementById("notes");
+(function(){
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const counter = document.getElementById('counter');
+  const progress = document.getElementById('progress');
+  const notes = document.getElementById('notes');
+  const notesBody = document.getElementById('notes-body');
+  const hud = document.getElementById('hud');
+  const help = document.getElementById('help');
   let i = 0;
 
-  slides.forEach(() => {
-    const d = document.createElement("i");
-    dots.appendChild(d);
-  });
-
-  function go(n) {
+  function show(n){
     i = Math.max(0, Math.min(slides.length - 1, n));
-    slides.forEach((s, k) => s.classList.toggle("is-on", k === i));
-    [...dots.children].forEach((d, k) => d.classList.toggle("is-on", k === i));
-    pos.textContent = `${i + 1} / ${slides.length}`;
-    notes.textContent = slides[i].dataset.notes || "";
-    history.replaceState(null, "", `#${i + 1}`);
+    slides.forEach((s, k) => {
+      s.classList.remove('is-on');
+      if (k === i){ void s.offsetWidth; s.classList.add('is-on'); }
+    });
+    const dark = slides[i].classList.contains('dark');
+    hud.classList.toggle('on-dark', dark);
+    help.classList.toggle('on-dark', dark);
+    counter.textContent = (i + 1) + ' / ' + slides.length;
+    progress.style.width = ((i + 1) / slides.length * 100) + '%';
+    notesBody.innerHTML = slides[i].dataset.notes || '<p>—</p>';
+    location.hash = i + 1;
   }
 
-  function next() { go(i + 1); }
-  function prev() { go(i - 1); }
-
-  document.addEventListener("keydown", (e) => {
-    if (["ArrowRight", "ArrowDown", "PageDown", " ", "Enter"].includes(e.key)) {
-      e.preventDefault();
-      next();
-    } else if (["ArrowLeft", "ArrowUp", "PageUp", "Backspace"].includes(e.key)) {
-      e.preventDefault();
-      prev();
-    } else if (e.key === "Home") {
-      go(0);
-    } else if (e.key === "End") {
-      go(slides.length - 1);
-    } else if (e.key === "s" || e.key === "S") {
-      document.body.classList.toggle("show-notes");
-    } else if (e.key === "f" || e.key === "F") {
-      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-      else document.exitFullscreen();
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown'){ e.preventDefault(); show(i+1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp'){ e.preventDefault(); show(i-1); }
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length-1);
+    else if (e.key === 'f' || e.key === 'F'){
+      document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
     }
+    else if (e.key === 's' || e.key === 'S') notes.classList.toggle('is-up');
+    else if (e.key === 'Escape') notes.classList.remove('is-up');
   });
 
-  document.getElementById("deck").addEventListener("click", (e) => {
-    if (e.target.closest("a")) return;
-    if (e.clientX < window.innerWidth * 0.18) prev();
-    else next();
+  document.getElementById('deck').addEventListener('click', e => {
+    if (notes.contains(e.target)) return;
+    show(e.clientX < window.innerWidth * 0.28 ? i - 1 : i + 1);
   });
 
-  if (location.search.includes("notes=1")) document.body.classList.add("show-notes");
-  const hash = parseInt(location.hash.replace("#", ""), 10);
-  go(Number.isFinite(hash) && hash >= 1 ? hash - 1 : 0);
+  let x0 = null;
+  document.addEventListener('touchstart', e => { x0 = e.changedTouches[0].clientX; }, {passive:true});
+  document.addEventListener('touchend', e => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 45) show(dx < 0 ? i+1 : i-1);
+    x0 = null;
+  }, {passive:true});
+
+  const start = parseInt(location.hash.slice(1), 10);
+  show(Number.isFinite(start) && start > 0 ? start - 1 : 0);
+})();
 </script>
+
 </body>
 </html>

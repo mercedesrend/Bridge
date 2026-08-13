@@ -131,7 +131,7 @@ If the app dies on stage: narrate that gap from the deck. Do not debug.
 
 | File | What |
 |---|---|
-| `pitch/index.html` | 10-slide deck. Arrows/click, `F` fullscreen, `S` notes. Open `/pitch`. |
+| `pitch/index.html` | 12-slide deck (the blue/purple/white version). Arrows/click, `F` fullscreen, `S` notes. Open `/pitch`. |
 | `pitch/SPEECH.md` | 5-min script, 3-min cut, click path, Q&A, do-not-say list. |
 
 Spine: scene (she has no questions) → 25.7M LEP → silence is not disinterest → not the doctor / not the interpreter → demo the gap → AWS in one breath → clinics + pharma pay → extra chair.
@@ -224,4 +224,4 @@ UI chrome lives in `frontend/i18n.js` (`en` + `es`). Briefs come from the model 
 
 ## If you are asked to rewrite the speech or deck
 
-Start from `pitch/SPEECH.md` and `pitch/index.html`. Keep 10 slides or fewer. Keep the GLP-1 gap as the only “company” moment. Match the extra-chair logo and black/white type. No gradients, no emoji, no stock photos.
+Start from `pitch/SPEECH.md` and `pitch/index.html`. Keep 12 slides. Keep the GLP-1 gap as the only “company” moment. Match the extra-chair logo and black/white type. No gradients, no emoji, no stock photos.
