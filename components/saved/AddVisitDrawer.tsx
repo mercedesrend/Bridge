@@ -90,13 +90,6 @@ export function AddVisitDrawer({
   const [symptomInput, setSymptomInput] = useState("");
 
   useEffect(() => {
-    if (open) {
-      setDraft(initialDraft);
-      setSymptomInput("");
-    }
-  }, [open, initialDraft]);
-
-  useEffect(() => {
     if (!open) return;
     function onKey(event: KeyboardEvent) {
       if (event.key === "Escape") onClose();

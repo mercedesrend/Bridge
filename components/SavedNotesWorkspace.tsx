@@ -539,6 +539,7 @@ export function SavedNotesWorkspace() {
       </section>
 
       <AddVisitDrawer
+        key={`${drawerMode}-${activeVisitId || "new"}-${drawerOpen ? "open" : "closed"}`}
         open={drawerOpen}
         mode={drawerMode}
         initialDraft={drawerDraft}

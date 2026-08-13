@@ -87,6 +87,24 @@ export interface VisitRecord {
   location: string;
   summary: string;
   symptomsDiscussed: string[];
+  /** Prep notes for the next appointment linked to this visit record. */
+  preVisitNotes?: string;
+  /** Topics or possible explanations the user wants to ask about. */
+  possibleConditions?: string;
+  /** Drafted questions to bring into the next appointment. */
+  questionsForDoctor?: string[];
+  /** Day-of logistics or expectation notes. */
+  whatToExpectNotes?: string;
+  /** Manual running notes captured during the appointment. */
+  duringVisitNotes?: string;
+  /** Important terms, test names, or phrases heard in the room. */
+  visitTerms?: string[];
+  /** Questions still unanswered before leaving the room. */
+  remainingQuestions?: string[];
+  /** Interpreter or language reminders for the live visit. */
+  languageSupportPlan?: string;
+  /** Short summary of the key points from the live visit. */
+  duringKeyPoints?: string;
   decisionsMade: string;
   followUpPlan: string;
   /** Free-text meds / prescriptions mentioned at this visit. */

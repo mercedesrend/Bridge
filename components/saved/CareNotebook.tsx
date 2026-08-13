@@ -219,6 +219,68 @@ export function CareNotebook({
                       </DocSection>
                     ) : null}
 
+                    {visit.preVisitNotes ? (
+                      <DocSection title="Before the visit">
+                        <p>{visit.preVisitNotes}</p>
+                      </DocSection>
+                    ) : null}
+
+                    {visit.possibleConditions ? (
+                      <DocSection title="Topics worth asking about">
+                        <p>{visit.possibleConditions}</p>
+                      </DocSection>
+                    ) : null}
+
+                    {visit.questionsForDoctor?.length ? (
+                      <DocSection title="Questions for the doctor">
+                        <ul className="list-disc space-y-1 pl-5">
+                          {visit.questionsForDoctor.map((question) => (
+                            <li key={question}>{question}</li>
+                          ))}
+                        </ul>
+                      </DocSection>
+                    ) : null}
+
+                    {visit.whatToExpectNotes ? (
+                      <DocSection title="What to bring or expect">
+                        <p>{visit.whatToExpectNotes}</p>
+                      </DocSection>
+                    ) : null}
+
+                    {visit.duringVisitNotes ? (
+                      <DocSection title="During the visit notes">
+                        <p>{visit.duringVisitNotes}</p>
+                      </DocSection>
+                    ) : null}
+
+                    {visit.languageSupportPlan ? (
+                      <DocSection title="Language support plan">
+                        <p>{visit.languageSupportPlan}</p>
+                      </DocSection>
+                    ) : null}
+
+                    {visit.visitTerms?.length ? (
+                      <DocSection title="Terms and names to revisit">
+                        <p>{visit.visitTerms.join(", ")}</p>
+                      </DocSection>
+                    ) : null}
+
+                    {visit.remainingQuestions?.length ? (
+                      <DocSection title="Questions still open">
+                        <ul className="list-disc space-y-1 pl-5">
+                          {visit.remainingQuestions.map((question) => (
+                            <li key={question}>{question}</li>
+                          ))}
+                        </ul>
+                      </DocSection>
+                    ) : null}
+
+                    {visit.duringKeyPoints ? (
+                      <DocSection title="Key points before leaving">
+                        <p>{visit.duringKeyPoints}</p>
+                      </DocSection>
+                    ) : null}
+
                     {visit.decisionsMade ? (
                       <DocSection title="Decisions made">
                         <p>{visit.decisionsMade}</p>

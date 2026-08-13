@@ -21,6 +21,28 @@ const SEEDED_STATE: SavedHistoryState = {
       summary:
         "Talked through worsening fatigue and joint pain. Reviewed what has changed since the last visit and narrowed the next questions for treatment planning.",
       symptomsDiscussed: ["fatigue", "joint pain", "morning stiffness"],
+      preVisitNotes:
+        "Fatigue is worst before noon, morning stiffness lasts longer than it used to, and headaches show up after long work days. I want to explain what changed since the last visit without rambling.",
+      possibleConditions:
+        "Ask whether the flare pattern could point to inflammation getting worse, medication side effects, or something new the labs can clarify.",
+      questionsForDoctor: [
+        "What changed since my last labs?",
+        "What should I track between now and the next visit?",
+        "When should I call sooner instead of waiting?",
+      ],
+      whatToExpectNotes:
+        "Bring the symptom log, current medication list, and ask for plain-language explanations if new treatment options come up.",
+      duringVisitNotes:
+        "Listen for what the labs are meant to rule in or rule out. Write down any follow-up tests before leaving.",
+      visitTerms: ["inflammation markers", "follow-up labs"],
+      remainingQuestions: [
+        "How long should I wait before expecting improvement?",
+        "What side effects should I watch for at home?",
+      ],
+      languageSupportPlan:
+        "If anything moves too fast, ask the doctor to pause and repeat the main point in plain language.",
+      duringKeyPoints:
+        "Focus on test results, treatment timing, and what changes would mean I should message the clinic early.",
       decisionsMade:
         "Ordered updated labs, asked to keep a symptom log, and planned to revisit treatment options after results come back.",
       followUpPlan:
@@ -55,6 +77,15 @@ export function loadSavedHistory(): SavedHistoryState {
       ...parsed,
       visits: parsed.visits.map((visit) => ({
         ...visit,
+        preVisitNotes: visit.preVisitNotes ?? "",
+        possibleConditions: visit.possibleConditions ?? "",
+        questionsForDoctor: visit.questionsForDoctor ?? [],
+        whatToExpectNotes: visit.whatToExpectNotes ?? "",
+        duringVisitNotes: visit.duringVisitNotes ?? "",
+        visitTerms: visit.visitTerms ?? [],
+        remainingQuestions: visit.remainingQuestions ?? [],
+        languageSupportPlan: visit.languageSupportPlan ?? "",
+        duringKeyPoints: visit.duringKeyPoints ?? "",
         prescriptions: visit.prescriptions ?? "",
       })),
     };
