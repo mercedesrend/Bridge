@@ -1,4 +1,6 @@
-# Bridge
+# Bridge — visit companion
+
+This folder is the **phone visit app** (language, captions, gap check, pitch). It lives inside `mercedesrend/Bridge` so it shows up on GitHub `main`. The same code is also on the [`hackday-bridge`](https://github.com/mercedesrend/Bridge/tree/hackday-bridge) branch.
 
 **The extra chair in the exam room — in your language.**
 
