@@ -1,5 +1,6 @@
 "use client";
 
+import { inferAppointmentInputs } from "./appointments";
 import type { SavedDocument, VisitRecord } from "./types";
 
 const STORAGE_KEY = "bridge:saved-history";
@@ -49,6 +50,8 @@ const SEEDED_STATE: SavedHistoryState = {
         "Request lab results in the portal, track symptom changes for two weeks, and bring the updated question list to the next appointment.",
       prescriptions:
         "Continue current anti-inflammatory as directed. No new prescriptions started at this visit.",
+      nextAppointmentDate: "2026-08-14",
+      nextAppointmentTime: "10:30",
       nextAppointment: "2026-08-14 10:30 AM",
     },
   ],
@@ -75,19 +78,25 @@ export function loadSavedHistory(): SavedHistoryState {
     }
     return {
       ...parsed,
-      visits: parsed.visits.map((visit) => ({
-        ...visit,
-        preVisitNotes: visit.preVisitNotes ?? "",
-        possibleConditions: visit.possibleConditions ?? "",
-        questionsForDoctor: visit.questionsForDoctor ?? [],
-        whatToExpectNotes: visit.whatToExpectNotes ?? "",
-        duringVisitNotes: visit.duringVisitNotes ?? "",
-        visitTerms: visit.visitTerms ?? [],
-        remainingQuestions: visit.remainingQuestions ?? [],
-        languageSupportPlan: visit.languageSupportPlan ?? "",
-        duringKeyPoints: visit.duringKeyPoints ?? "",
-        prescriptions: visit.prescriptions ?? "",
-      })),
+      visits: parsed.visits.map((visit) => {
+        const inferred = inferAppointmentInputs(visit.nextAppointment ?? "");
+        return {
+          ...visit,
+          preVisitNotes: visit.preVisitNotes ?? "",
+          possibleConditions: visit.possibleConditions ?? "",
+          questionsForDoctor: visit.questionsForDoctor ?? [],
+          whatToExpectNotes: visit.whatToExpectNotes ?? "",
+          duringVisitNotes: visit.duringVisitNotes ?? "",
+          visitTerms: visit.visitTerms ?? [],
+          remainingQuestions: visit.remainingQuestions ?? [],
+          languageSupportPlan: visit.languageSupportPlan ?? "",
+          duringKeyPoints: visit.duringKeyPoints ?? "",
+          prescriptions: visit.prescriptions ?? "",
+          nextAppointmentDate: visit.nextAppointmentDate ?? inferred.date,
+          nextAppointmentTime: visit.nextAppointmentTime ?? inferred.time,
+          nextAppointment: visit.nextAppointment ?? "",
+        };
+      }),
     };
   } catch {
     return SEEDED_STATE;

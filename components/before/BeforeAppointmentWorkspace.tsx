@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AskBridgeInlinePrompts } from "@/components/ask/AskBridgeInlinePrompts";
 import { Icon } from "@/components/shell/Icon";
+import { appointmentLabelFromVisit } from "@/lib/appointments";
 import { loadSavedHistory, saveSavedHistory } from "@/lib/savedHistory";
 import type { VisitRecord } from "@/lib/types";
 
@@ -251,7 +252,7 @@ export function BeforeAppointmentWorkspace() {
             Next appointment
           </p>
           <p className="mt-3 text-lg font-semibold text-slate-900">
-            {formatNextAppointment(activeVisit.nextAppointment)}
+            {formatNextAppointment(appointmentLabelFromVisit(activeVisit))}
           </p>
         </div>
         <div className="rounded-2xl bg-[var(--brand-soft)] p-5">
@@ -309,7 +310,7 @@ export function BeforeAppointmentWorkspace() {
                       {visit.doctor}
                     </p>
                     <p className="mt-1 text-sm text-slate-600">
-                      {visit.nextAppointment || "No next appointment saved"}
+                      {appointmentLabelFromVisit(visit) || "No next appointment saved"}
                     </p>
                   </button>
                 );

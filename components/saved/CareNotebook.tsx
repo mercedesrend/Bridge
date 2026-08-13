@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useMemo } from "react";
 import { Icon } from "@/components/shell/Icon";
+import { appointmentLabelFromVisit } from "@/lib/appointments";
 import type { SavedDocument, VisitRecord } from "@/lib/types";
 
 function formatVisitDate(date: string) {
@@ -299,9 +300,9 @@ export function CareNotebook({
                       </DocSection>
                     ) : null}
 
-                    {visit.nextAppointment ? (
+                    {appointmentLabelFromVisit(visit) ? (
                       <DocSection title="Next appointment">
-                        <p>{visit.nextAppointment}</p>
+                        <p>{appointmentLabelFromVisit(visit)}</p>
                       </DocSection>
                     ) : null}
 

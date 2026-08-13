@@ -109,5 +109,9 @@ export interface VisitRecord {
   followUpPlan: string;
   /** Free-text meds / prescriptions mentioned at this visit. */
   prescriptions: string;
+  /** Structured next appointment date so the dashboard can derive phases reliably. */
+  nextAppointmentDate?: string;
+  /** Structured next appointment time in 24h HH:mm format. */
+  nextAppointmentTime?: string;
   nextAppointment: string;
 }

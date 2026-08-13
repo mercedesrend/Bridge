@@ -2,6 +2,11 @@
 
 import { useEffect, useId, useState } from "react";
 import { Icon } from "@/components/shell/Icon";
+import {
+  appointmentLabelFromVisit,
+  composeAppointmentLabel,
+  inferAppointmentInputs,
+} from "@/lib/appointments";
 import type { VisitRecord } from "@/lib/types";
 
 export type VisitDraft = {
@@ -14,6 +19,8 @@ export type VisitDraft = {
   decisionsMade: string;
   followUpPlan: string;
   prescriptions: string;
+  nextAppointmentDate: string;
+  nextAppointmentTime: string;
   nextAppointment: string;
 };
 
@@ -27,10 +34,13 @@ export const emptyVisitDraft: VisitDraft = {
   decisionsMade: "",
   followUpPlan: "",
   prescriptions: "",
+  nextAppointmentDate: "",
+  nextAppointmentTime: "",
   nextAppointment: "",
 };
 
 export function draftFromVisit(visit: VisitRecord): VisitDraft {
+  const inferred = inferAppointmentInputs(visit.nextAppointment);
   return {
     date: visit.date,
     doctor: visit.doctor,
@@ -41,7 +51,9 @@ export function draftFromVisit(visit: VisitRecord): VisitDraft {
     decisionsMade: visit.decisionsMade,
     followUpPlan: visit.followUpPlan,
     prescriptions: visit.prescriptions,
-    nextAppointment: visit.nextAppointment,
+    nextAppointmentDate: visit.nextAppointmentDate ?? inferred.date,
+    nextAppointmentTime: visit.nextAppointmentTime ?? inferred.time,
+    nextAppointment: appointmentLabelFromVisit(visit),
   };
 }
 
@@ -296,13 +308,35 @@ export function AddVisitDrawer({
               />
             </Field>
             <Field id="visit-next" label="Next appointment" hint="Optional">
-              <input
-                id="visit-next"
-                value={draft.nextAppointment}
-                onChange={(event) => update("nextAppointment", event.target.value)}
-                className={inputClass}
-                placeholder="e.g. Thu, Aug 14 · 10:30 AM"
-              />
+              <div className="grid gap-3 sm:grid-cols-2">
+                <input
+                  id="visit-next"
+                  type="date"
+                  value={draft.nextAppointmentDate}
+                  onChange={(event) => {
+                    const nextDate = event.target.value;
+                    update("nextAppointmentDate", nextDate);
+                    update(
+                      "nextAppointment",
+                      composeAppointmentLabel(nextDate, draft.nextAppointmentTime),
+                    );
+                  }}
+                  className={inputClass}
+                />
+                <input
+                  type="time"
+                  value={draft.nextAppointmentTime}
+                  onChange={(event) => {
+                    const nextTime = event.target.value;
+                    update("nextAppointmentTime", nextTime);
+                    update(
+                      "nextAppointment",
+                      composeAppointmentLabel(draft.nextAppointmentDate, nextTime),
+                    );
+                  }}
+                  className={inputClass}
+                />
+              </div>
             </Field>
           </section>
         </div>

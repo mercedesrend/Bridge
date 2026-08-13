@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@/components/shell/Icon";
+import { appointmentDateFromVisit, appointmentLabelFromVisit } from "@/lib/appointments";
 import { loadSavedHistory, type SavedHistoryState } from "@/lib/savedHistory";
 import type { VisitRecord } from "@/lib/types";
 
@@ -23,30 +24,6 @@ type Phase = {
   href: string;
   steps: ChecklistStep[];
 };
-
-function parseAppointmentDate(raw: string) {
-  const trimmed = raw.trim();
-  if (!trimmed) return null;
-
-  const exact = trimmed.match(
-    /^(\d{4}-\d{2}-\d{2})(?:[ T](\d{1,2}):(\d{2})(?:\s*(AM|PM))?)?$/i,
-  );
-  if (!exact) {
-    const fallback = new Date(trimmed);
-    return Number.isNaN(fallback.getTime()) ? null : fallback;
-  }
-
-  const [, datePart, hourPart, minutePart, meridiemPart] = exact;
-  const [year, month, day] = datePart.split("-").map(Number);
-  let hours = hourPart ? Number(hourPart) : 12;
-  const minutes = minutePart ? Number(minutePart) : 0;
-  const meridiem = meridiemPart?.toUpperCase();
-
-  if (meridiem === "PM" && hours < 12) hours += 12;
-  if (meridiem === "AM" && hours === 12) hours = 0;
-
-  return new Date(year, month - 1, day, hours, minutes);
-}
 
 function summarizeText(value: string, fallback: string, maxWords = 5) {
   const trimmed = value.trim();
@@ -160,9 +137,11 @@ function buildPhases(visit: VisitRecord, documentCount: number): Phase[] {
         },
         {
           label: "Where to go next",
-          done: Boolean(visit.followUpPlan.trim() || visit.nextAppointment.trim()),
-          result: visit.nextAppointment.trim()
-            ? visit.nextAppointment
+          done: Boolean(
+            visit.followUpPlan.trim() || appointmentLabelFromVisit(visit).trim(),
+          ),
+          result: appointmentLabelFromVisit(visit).trim()
+            ? appointmentLabelFromVisit(visit)
             : visit.followUpPlan.trim()
               ? "next steps saved"
               : undefined,
@@ -251,7 +230,7 @@ function pickDashboardVisit(savedState: SavedHistoryState, now: Date) {
   const visitsWithAppointments = savedState.visits
     .map((visit) => ({
       visit,
-      appointmentStart: parseAppointmentDate(visit.nextAppointment),
+      appointmentStart: appointmentDateFromVisit(visit),
     }))
     .filter(
       (item): item is { visit: VisitRecord; appointmentStart: Date } =>

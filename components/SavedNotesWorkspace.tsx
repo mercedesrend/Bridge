@@ -11,6 +11,11 @@ import {
 import { CareNotebook, CareNotebookTab } from "@/components/saved/CareNotebook";
 import { Icon } from "@/components/shell/Icon";
 import {
+  appointmentLabelFromVisit,
+  composeAppointmentLabel,
+  formatAppointmentBadge,
+} from "@/lib/appointments";
+import {
   loadSavedHistory,
   makeSavedId,
   maxUploadBytes,
@@ -33,23 +38,6 @@ function formatVisitDate(date: string) {
     day: "numeric",
     year: "numeric",
   }).format(parsed);
-}
-
-function formatFollowUp(value: string) {
-  if (!value.trim()) return "";
-  const isoish = value.match(/^(\d{4}-\d{2}-\d{2})(?:[ T](\d{1,2}:\d{2})\s*(AM|PM)?)?/i);
-  if (!isoish) return value;
-  const datePart = isoish[1];
-  const timePart = isoish[2];
-  const meridiem = isoish[3];
-  const parsed = new Date(`${datePart}T12:00:00`);
-  const dateLabel = new Intl.DateTimeFormat("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  }).format(parsed);
-  if (!timePart) return dateLabel;
-  return `${dateLabel} · ${timePart}${meridiem ? ` ${meridiem.toUpperCase()}` : ""}`;
 }
 
 function docsForVisit(documents: SavedDocument[], visitId: string) {
@@ -77,7 +65,12 @@ function visitFromDraft(draft: VisitDraft, id: string): VisitRecord {
     decisionsMade: draft.decisionsMade.trim(),
     followUpPlan: draft.followUpPlan.trim(),
     prescriptions: draft.prescriptions.trim(),
-    nextAppointment: draft.nextAppointment.trim(),
+    nextAppointmentDate: draft.nextAppointmentDate,
+    nextAppointmentTime: draft.nextAppointmentTime,
+    nextAppointment: composeAppointmentLabel(
+      draft.nextAppointmentDate,
+      draft.nextAppointmentTime,
+    ).trim(),
   };
 }
 
@@ -95,6 +88,11 @@ export function SavedNotesWorkspace() {
   const [notebookOpen, setNotebookOpen] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const [dragging, setDragging] = useState(false);
+  const [appointmentDraft, setAppointmentDraft] = useState(() => ({
+    date: loadSavedHistory().visits[0]?.nextAppointmentDate ?? "",
+    time: loadSavedHistory().visits[0]?.nextAppointmentTime ?? "",
+  }));
+  const [appointmentNotice, setAppointmentNotice] = useState("");
 
   const visits = savedState.visits;
   const documents = savedState.documents;
@@ -139,6 +137,10 @@ export function SavedNotesWorkspace() {
         .sort((a, b) => (a.date < b.date ? 1 : -1));
       commit({ ...savedState, visits: nextVisits });
       setActiveVisitId(updated.id);
+      setAppointmentDraft({
+        date: updated.nextAppointmentDate ?? "",
+        time: updated.nextAppointmentTime ?? "",
+      });
     } else {
       const visit = visitFromDraft(draft, makeSavedId("visit"));
       const nextState = {
@@ -149,6 +151,10 @@ export function SavedNotesWorkspace() {
       };
       commit(nextState);
       setActiveVisitId(visit.id);
+      setAppointmentDraft({
+        date: visit.nextAppointmentDate ?? "",
+        time: visit.nextAppointmentTime ?? "",
+      });
     }
     setDrawerOpen(false);
   }
@@ -211,6 +217,33 @@ export function SavedNotesWorkspace() {
     });
   }
 
+  function saveNextAppointment() {
+    if (!activeVisit) return;
+
+    const nextLabel = composeAppointmentLabel(
+      appointmentDraft.date,
+      appointmentDraft.time,
+    );
+
+    const nextVisits = savedState.visits.map((visit) =>
+      visit.id === activeVisit.id
+        ? {
+            ...visit,
+            nextAppointmentDate: appointmentDraft.date,
+            nextAppointmentTime: appointmentDraft.time,
+            nextAppointment: nextLabel,
+          }
+        : visit,
+    );
+
+    commit({ ...savedState, visits: nextVisits });
+    setAppointmentNotice(
+      nextLabel
+        ? "Upcoming appointment saved. Home will use this timing."
+        : "Upcoming appointment cleared.",
+    );
+  }
+
   return (
     <div className="relative mx-auto max-w-6xl">
       <CareNotebookTab onOpen={() => setNotebookOpen(true)} />
@@ -261,6 +294,11 @@ export function SavedNotesWorkspace() {
                     type="button"
                     onClick={() => {
                       setActiveVisitId(visit.id);
+                      setAppointmentDraft({
+                        date: visit.nextAppointmentDate ?? "",
+                        time: visit.nextAppointmentTime ?? "",
+                      });
+                      setAppointmentNotice("");
                       setMenuOpen(false);
                     }}
                     className={`w-full rounded-xl border px-3.5 py-3.5 text-left transition ${
@@ -335,10 +373,10 @@ export function SavedNotesWorkspace() {
                   </div>
                 </div>
 
-                {activeVisit.nextAppointment ? (
+                {appointmentLabelFromVisit(activeVisit) ? (
                   <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-[var(--brand-soft)] px-3.5 py-1.5 text-sm font-medium text-slate-800">
                     <Icon name="calendar" className="h-4 w-4 text-[var(--brand)]" />
-                    Next appointment · {formatFollowUp(activeVisit.nextAppointment)}
+                    Next appointment · {formatAppointmentBadge(activeVisit)}
                   </div>
                 ) : null}
 
@@ -417,6 +455,85 @@ export function SavedNotesWorkspace() {
                     </button>
                   ))}
                 </div>
+              </section>
+
+              <section className="rounded-2xl border border-[var(--line)] bg-white p-6">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <h2 className="text-lg font-semibold text-slate-900">
+                      Upcoming appointment
+                    </h2>
+                    <p className="mt-1 text-sm leading-6 text-slate-600">
+                      This is the source the home dashboard uses for timing,
+                      phase state, and the next-step CTA.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={saveNextAppointment}
+                    className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-strong)]"
+                  >
+                    <Icon name="check" className="h-4 w-4" />
+                    Save appointment
+                  </button>
+                </div>
+
+                {appointmentNotice ? (
+                  <div className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--brand-soft)] px-4 py-2 text-sm font-medium text-slate-800">
+                    <Icon name="check" className="h-4 w-4 text-[var(--brand)]" />
+                    {appointmentNotice}
+                  </div>
+                ) : null}
+
+                <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                  <label className="block">
+                    <span className="block text-sm font-medium text-slate-800">
+                      Date
+                    </span>
+                    <input
+                      type="date"
+                      value={appointmentDraft.date}
+                      onChange={(event) => {
+                        setAppointmentDraft((current) => ({
+                          ...current,
+                          date: event.target.value,
+                        }));
+                        setAppointmentNotice("");
+                      }}
+                      className="mt-1.5 min-h-11 w-full rounded-xl border border-[var(--line)] bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-[var(--brand)]"
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className="block text-sm font-medium text-slate-800">
+                      Time
+                    </span>
+                    <input
+                      type="time"
+                      value={appointmentDraft.time}
+                      onChange={(event) => {
+                        setAppointmentDraft((current) => ({
+                          ...current,
+                          time: event.target.value,
+                        }));
+                        setAppointmentNotice("");
+                      }}
+                      className="mt-1.5 min-h-11 w-full rounded-xl border border-[var(--line)] bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-[var(--brand)]"
+                    />
+                  </label>
+                </div>
+
+                <p className="mt-3 text-sm text-slate-500">
+                  {appointmentLabelFromVisit({
+                    nextAppointmentDate: appointmentDraft.date,
+                    nextAppointmentTime: appointmentDraft.time,
+                    nextAppointment: composeAppointmentLabel(
+                      appointmentDraft.date,
+                      appointmentDraft.time,
+                    ),
+                  }) || "No upcoming appointment saved yet."}
+                </p>
               </section>
 
               <section className="rounded-2xl border border-[var(--line)] bg-white p-6">

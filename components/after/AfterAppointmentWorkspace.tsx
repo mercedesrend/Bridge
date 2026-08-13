@@ -10,6 +10,7 @@ import {
   type VisitDraft,
 } from "@/components/saved/AddVisitDrawer";
 import { Icon } from "@/components/shell/Icon";
+import { appointmentLabelFromVisit, composeAppointmentLabel } from "@/lib/appointments";
 import {
   loadSavedHistory,
   makeSavedId,
@@ -69,7 +70,12 @@ function visitFromDraft(id: string, draft: VisitDraft): VisitRecord {
     decisionsMade: draft.decisionsMade.trim(),
     followUpPlan: draft.followUpPlan.trim(),
     prescriptions: draft.prescriptions.trim(),
-    nextAppointment: draft.nextAppointment.trim(),
+    nextAppointmentDate: draft.nextAppointmentDate,
+    nextAppointmentTime: draft.nextAppointmentTime,
+    nextAppointment: composeAppointmentLabel(
+      draft.nextAppointmentDate,
+      draft.nextAppointmentTime,
+    ).trim(),
   };
 }
 
@@ -239,11 +245,15 @@ export function AfterAppointmentWorkspace() {
         detail: draft.decisionsMade.trim() ? "Saved" : "Add the choices or decisions made",
       },
       {
-        label: "Where to go next",
-        done: Boolean(draft.followUpPlan.trim() || draft.nextAppointment.trim()),
-        detail:
-          draft.followUpPlan.trim() || draft.nextAppointment.trim()
-            ? draft.nextAppointment.trim() || "Next steps saved"
+          label: "Where to go next",
+          done: Boolean(draft.followUpPlan.trim() || draft.nextAppointment.trim()),
+          detail:
+            draft.followUpPlan.trim() || draft.nextAppointment.trim()
+            ? appointmentLabelFromVisit({
+                nextAppointmentDate: draft.nextAppointmentDate,
+                nextAppointmentTime: draft.nextAppointmentTime,
+                nextAppointment: draft.nextAppointment,
+              }) || "Next steps saved"
             : "Capture the follow-up plan or next visit",
       },
       {
@@ -515,14 +525,34 @@ export function AfterAppointmentWorkspace() {
 
                     <div>
                       <SectionLabel>Next appointment</SectionLabel>
-                      <input
-                        value={draft.nextAppointment}
-                        onChange={(event) =>
-                          updateDraft("nextAppointment", event.target.value)
-                        }
-                        className={`${inputClass} mt-2`}
-                        placeholder="e.g. Aug 28, 10:30 AM"
-                      />
+                      <div className="mt-2 grid gap-3">
+                        <input
+                          type="date"
+                          value={draft.nextAppointmentDate}
+                          onChange={(event) => {
+                            const nextDate = event.target.value;
+                            updateDraft("nextAppointmentDate", nextDate);
+                            updateDraft(
+                              "nextAppointment",
+                              composeAppointmentLabel(nextDate, draft.nextAppointmentTime),
+                            );
+                          }}
+                          className={inputClass}
+                        />
+                        <input
+                          type="time"
+                          value={draft.nextAppointmentTime}
+                          onChange={(event) => {
+                            const nextTime = event.target.value;
+                            updateDraft("nextAppointmentTime", nextTime);
+                            updateDraft(
+                              "nextAppointment",
+                              composeAppointmentLabel(draft.nextAppointmentDate, nextTime),
+                            );
+                          }}
+                          className={inputClass}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
