@@ -1,367 +1,417 @@
 import Link from "next/link";
-import { AskBridgeCard } from "@/components/ask/AskBridgeCard";
 import { Icon } from "@/components/shell/Icon";
 
-interface Step {
-  done: boolean;
-  label: string;
-}
+type PhaseKey = "before" | "during" | "after";
 
-function JourneyCard({
-  tone,
-  icon,
-  title,
-  blurb,
-  steps,
-  cta,
-  href,
-}: {
-  tone: "before" | "during" | "after";
-  icon: string;
-  title: string;
-  blurb: string;
-  steps: Step[];
+type ChecklistStep = {
+  label: string;
+  done: boolean;
+  result?: string;
+  href: string;
+};
+
+type Phase = {
+  key: PhaseKey;
+  label: string;
+  heading: string;
   cta: string;
   href: string;
-}) {
-  const tones = {
-    before: {
-      card: "bg-[var(--before)]",
-      chip: "bg-white text-[var(--before-ink)]",
-      btn: "bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)]",
-    },
-    during: {
-      card: "bg-[var(--during)]",
-      chip: "bg-white text-[var(--during-ink)]",
-      btn: "bg-[#f5c56b] text-[#7a5410] hover:bg-[#f0b949]",
-    },
-    after: {
-      card: "bg-[var(--after)]",
-      chip: "bg-white text-[var(--after-ink)]",
-      btn: "bg-[#a8dcc0] text-[#1f5c42] hover:bg-[#93d3b1]",
-    },
-  }[tone];
+  steps: ChecklistStep[];
+};
 
-  return (
-    <section className={`flex flex-col rounded-2xl p-5 ${tones.card}`}>
-      <span className={`grid h-11 w-11 place-items-center rounded-xl ${tones.chip}`}>
-        <Icon name={icon} className="h-5 w-5" />
-      </span>
-      <h3 className="mt-3 text-base font-bold text-slate-900">{title}</h3>
-      <p className="mt-1 text-[13px] leading-relaxed text-slate-600">{blurb}</p>
+const appointment = {
+  doctor: "Dr. Sarah Kim",
+  specialty: "Rheumatology",
+  location: "Mount Sinai Medical Center",
+  start: "2026-08-14T10:30:00-07:00",
+  durationMinutes: 60,
+};
 
-      <ul className="mt-4 space-y-2">
-        {steps.map((s) => (
-          <li key={s.label} className="flex items-center gap-2 text-[13px]">
-            {s.done ? (
-              <span className="grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-emerald-500 text-white">
-                <Icon name="check" className="h-3 w-3" />
-              </span>
-            ) : (
-              <span className="h-[18px] w-[18px] shrink-0 rounded-full border-2 border-slate-300 bg-white/60" />
-            )}
-            <span className={s.done ? "text-slate-700" : "text-slate-500"}>
-              {s.label}
-            </span>
-          </li>
-        ))}
-      </ul>
+const phases: Phase[] = [
+  {
+    key: "before",
+    label: "Before",
+    heading: "Get ready",
+    cta: "Finish preparing",
+    href: "/before",
+    steps: [
+      {
+        label: "Describe symptoms",
+        done: true,
+        result: "fatigue, joint pain, headaches",
+        href: "/before",
+      },
+      {
+        label: "Possible conditions",
+        done: true,
+        result: "2 worth asking about",
+        href: "/before",
+      },
+      {
+        label: "Questions to ask",
+        done: true,
+        result: "5 generated",
+        href: "/before",
+      },
+      {
+        label: "What to expect",
+        done: false,
+        href: "/before",
+      },
+    ],
+  },
+  {
+    key: "during",
+    label: "During",
+    heading: "During your visit",
+    cta: "Start your visit",
+    href: "/during",
+    steps: [
+      {
+        label: "Live transcription",
+        done: true,
+        result: "ready",
+        href: "/during",
+      },
+      {
+        label: "Translation support",
+        done: true,
+        result: "Spanish selected",
+        href: "/during",
+      },
+      {
+        label: "Smart note-taking",
+        done: true,
+        result: "notes enabled",
+        href: "/during",
+      },
+      {
+        label: "Key points & questions",
+        done: false,
+        href: "/during",
+      },
+    ],
+  },
+  {
+    key: "after",
+    label: "After",
+    heading: "Review",
+    cta: "Review your visit",
+    href: "/after",
+    steps: [
+      {
+        label: "Appointment summary",
+        done: true,
+        result: "draft ready",
+        href: "/after",
+      },
+      {
+        label: "Treatment options",
+        done: true,
+        result: "1 saved",
+        href: "/treatment-options",
+      },
+      {
+        label: "Where to go next",
+        done: false,
+        href: "/after",
+      },
+      {
+        label: "Second opinions",
+        done: false,
+        href: "/second-opinions",
+      },
+    ],
+  },
+];
 
-      <Link
-        href={href}
-        className={`mt-5 rounded-xl px-4 py-2.5 text-center text-sm font-semibold transition ${tones.btn}`}
-      >
-        {cta}
-      </Link>
-    </section>
-  );
+function phaseForTime(now: Date, start: Date, end: Date): PhaseKey {
+  if (now < start) return "before";
+  if (now <= end) return "during";
+  return "after";
 }
 
-function QuickAction({
-  icon,
-  title,
-  blurb,
-  href,
-}: {
-  icon: string;
-  title: string;
-  blurb: string;
-  href: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="flex items-center gap-3 rounded-xl border border-[var(--line)] bg-white p-3.5 transition hover:border-[var(--brand)]/30 hover:shadow-sm"
-    >
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--brand-soft)] text-[var(--brand)]">
-        <Icon name={icon} className="h-[18px] w-[18px]" />
-      </span>
-      <span className="min-w-0">
-        <span className="block text-sm font-semibold text-slate-900">
-          {title}
-        </span>
-        <span className="block truncate text-xs text-[var(--muted)]">
-          {blurb}
-        </span>
-      </span>
-    </Link>
+function phaseUnlockText(phase: PhaseKey, start: Date, end: Date) {
+  if (phase === "before") return "Open now";
+  if (phase === "during") {
+    return `opens at ${new Intl.DateTimeFormat("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    }).format(start)}`;
+  }
+  return `opens after ${new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(end)}`;
+}
+
+function relativeAppointmentLabel(now: Date, start: Date) {
+  const diffMs = start.getTime() - now.getTime();
+  const diffMinutes = Math.round(diffMs / 60000);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(
+    (Date.UTC(start.getFullYear(), start.getMonth(), start.getDate()) -
+      Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())) /
+      86400000
   );
+
+  if (diffDays === 0) {
+    if (diffHours > 0) {
+      return `Today · in ${diffHours} hour${diffHours === 1 ? "" : "s"}`;
+    }
+    return `Today · in ${Math.max(diffMinutes, 1)} minute${diffMinutes === 1 ? "" : "s"}`;
+  }
+  if (diffDays === 1) {
+    return `Tomorrow · ${new Intl.DateTimeFormat("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    }).format(start)}`;
+  }
+  return `In ${diffDays} days`;
+}
+
+function absoluteDate(start: Date) {
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(start);
+}
+
+function nextIncompleteStep(phase: Phase) {
+  return phase.steps.find((step) => !step.done) ?? phase.steps[phase.steps.length - 1];
+}
+
+function completeCount(phase: Phase) {
+  return phase.steps.filter((step) => step.done).length;
 }
 
 export default function HomePage() {
-  return (
-    <div className="mx-auto max-w-[1180px] space-y-6">
-      {/* Greeting + reassurance banner */}
-      <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
-        <div>
-          <h1 className="text-[26px] font-bold tracking-tight text-slate-900">
-            Good morning, Mercedes <span aria-hidden>👋</span>
+  const start = new Date(appointment.start);
+  const end = new Date(start.getTime() + appointment.durationMinutes * 60000);
+  const now = new Date();
+  const hasUpcomingAppointment = now <= end;
+
+  if (!hasUpcomingAppointment) {
+    return (
+      <div className="mx-auto max-w-[1040px] space-y-6">
+        <section className="rounded-[24px] bg-[var(--surface)] px-6 py-6 shadow-[var(--card-shadow)] ring-1 ring-[var(--line)]">
+          <p className="text-sm font-medium text-[var(--muted)]">Home</p>
+          <h1 className="mt-2 text-[26px] font-semibold tracking-tight text-[var(--foreground)]">
+            No appointments scheduled
           </h1>
-          <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-600">
-            Bridge is here to help you prepare, advocate, and take action for
-            your health.
+          <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--muted)]">
+            Add your next appointment and Bridge will line up the right steps in the order you need them.
+          </p>
+          <Link
+            href="/before"
+            className="mt-5 inline-flex min-h-11 items-center rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-strong)]"
+          >
+            Add an appointment
+          </Link>
+        </section>
+
+        <section className="grid gap-4 md:grid-cols-2">
+          <Link
+            href="/before"
+            className="rounded-[22px] bg-[var(--surface-raised)] px-5 py-5 shadow-[var(--soft-shadow)] transition hover:bg-[var(--surface)]"
+          >
+            <p className="text-sm font-semibold text-[var(--foreground)]">Today&apos;s tip</p>
+            <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+              Write down the one thing you most need from your next visit before you start planning the rest.
+            </p>
+          </Link>
+          <Link
+            href="/profile"
+            className="rounded-[22px] bg-[var(--surface-raised)] px-5 py-5 shadow-[var(--soft-shadow)] transition hover:bg-[var(--surface)]"
+          >
+            <p className="text-sm font-semibold text-[var(--foreground)]">Find clinical trials</p>
+            <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+              Match your profile against active studies and build questions for your next conversation.
+            </p>
+          </Link>
+        </section>
+      </div>
+    );
+  }
+
+  const activePhaseKey = phaseForTime(now, start, end);
+  const activePhase = phases.find((phase) => phase.key === activePhaseKey) ?? phases[0];
+  const heroStep = nextIncompleteStep(activePhase);
+  const progressText = `${completeCount(activePhase)} of ${activePhase.steps.length} steps done`;
+
+  return (
+    <div className="mx-auto max-w-[1040px] space-y-6">
+      <section className="rounded-[24px] bg-[var(--surface)] px-6 py-6 shadow-[var(--card-shadow)] ring-1 ring-[var(--line)]">
+        <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-[var(--brand)]">
+              {relativeAppointmentLabel(now, start)}
+            </p>
+            <h1 className="mt-2 text-[22px] font-medium tracking-tight text-[var(--foreground)]">
+              {appointment.doctor} · {appointment.specialty}
+            </h1>
+            <p className="mt-2 text-[13px] leading-5 text-[var(--muted)]">
+              {appointment.location} · {absoluteDate(start)} ·{" "}
+              {new Intl.DateTimeFormat("en-US", {
+                hour: "numeric",
+                minute: "2-digit",
+              }).format(start)}
+            </p>
+          </div>
+
+          <p className="shrink-0 text-sm font-medium text-[var(--muted)] md:pt-1">
+            {progressText}
           </p>
         </div>
-        <div className="flex items-center gap-3 rounded-2xl bg-[var(--before)] p-4">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-white text-xl">
-            <span aria-hidden>🤝</span>
-          </span>
-          <span>
-            <span className="block text-sm font-bold text-slate-900">
-              You&rsquo;re not alone.
-            </span>
-            <span className="mt-0.5 block text-[13px] leading-relaxed text-slate-600">
-              We&rsquo;re here to help you feel informed, confident, and heard.
-            </span>
-          </span>
+
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+          <Link
+            href={heroStep.href}
+            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-strong)]"
+          >
+            {activePhase.cta}
+          </Link>
+          <Link
+            href={activePhase.href}
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[var(--line-strong)] px-4 py-2.5 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--surface-raised)]"
+          >
+            View details
+          </Link>
         </div>
-      </div>
+      </section>
 
-      {/* Journey */}
-      <div>
-        <h2 className="mb-3 text-sm font-bold text-slate-900">
-          Your Appointment Journey
-        </h2>
-        <div className="grid gap-4 md:grid-cols-3">
-          <JourneyCard
-            tone="before"
-            icon="doc"
-            title="Before"
-            blurb="Prepare for your appointment with personalized insights and smart suggestions."
-            steps={[
-              { done: true, label: "Describe symptoms" },
-              { done: true, label: "Possible conditions" },
-              { done: true, label: "Questions to ask" },
-              { done: false, label: "What to expect" },
-            ]}
-            cta="Start Preparing"
-            href="/before"
-          />
-          <JourneyCard
-            tone="during"
-            icon="pulse"
-            title="During"
-            blurb="Get real-time support during your appointment."
-            steps={[
-              { done: true, label: "Live transcription" },
-              { done: true, label: "Translation support" },
-              { done: true, label: "Smart note-taking" },
-              { done: false, label: "Key points & questions" },
-            ]}
-            cta="Use During Visit"
-            href="/during"
-          />
-          <JourneyCard
-            tone="after"
-            icon="doc"
-            title="After"
-            blurb="Review, reflect, and take action with clarity and confidence."
-            steps={[
-              { done: true, label: "Appointment summary" },
-              { done: true, label: "Treatment options" },
-              { done: false, label: "Where to go next" },
-              { done: false, label: "Second opinions" },
-            ]}
-            cta="View After Visit"
-            href="/after"
-          />
-        </div>
-      </div>
+      <section className="rounded-[20px] bg-[var(--surface)] px-4 py-4 shadow-[var(--soft-shadow)] ring-1 ring-[var(--line)]">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          {phases.map((phase, index) => {
+            const isActive = phase.key === activePhaseKey;
+            const isLocked =
+              (phase.key === "during" && activePhaseKey === "before") ||
+              (phase.key === "after" && activePhaseKey !== "after");
 
-      {/* Lower grid */}
-      <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
-        <div className="space-y-4">
-          <section className="card p-5">
-            <h2 className="flex items-center gap-2 text-sm font-bold text-slate-900">
-              <Icon name="calendar" className="h-4 w-4 text-[var(--brand)]" />
-              Upcoming Appointment
-            </h2>
-            <div className="mt-4 flex flex-wrap items-center gap-4">
-              <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[var(--brand-soft)] leading-none">
-                <span className="text-[10px] font-semibold uppercase text-[var(--brand)]">
-                  Aug
-                </span>
-                <span className="text-lg font-bold text-[var(--brand)]">14</span>
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-slate-900">
-                  Dr. Sarah Kim
-                </p>
-                <p className="text-xs text-[var(--muted)]">Rheumatology</p>
-                <p className="mt-1 text-xs text-slate-600">
-                  Thursday, Aug 14, 2026 &middot; 10:30 AM
-                </p>
-                <p className="text-xs text-[var(--muted)]">
-                  Mount Sinai Medical Center
-                </p>
-              </div>
-              <Link
-                href="/before"
-                className="rounded-xl border border-[var(--brand)]/40 px-4 py-2 text-sm font-semibold text-[var(--brand)] hover:bg-[var(--brand-soft)]"
-              >
-                View Details
-              </Link>
-            </div>
-          </section>
-
-          <section className="card p-5">
-            <h2 className="text-sm font-bold text-slate-900">Recent Activity</h2>
-            <ul className="mt-3 divide-y divide-[var(--line)]">
-              {[
-                {
-                  icon: "pulse",
-                  text: "You added symptoms: fatigue, joint pain, headaches",
-                  when: "2 hours ago",
-                  href: "/before",
-                },
-                {
-                  icon: "chat",
-                  text: "Generated 5 questions to ask your doctor",
-                  when: "Yesterday",
-                  href: "/before",
-                },
-                {
-                  icon: "bookmark",
-                  text: "Saved treatment option: Biologic Therapy",
-                  when: "2 days ago",
-                  href: "/saved",
-                },
-              ].map((a) => (
-                <li key={a.text}>
-                  <Link
-                    href={a.href}
-                    className="flex items-center gap-3 py-3 transition hover:opacity-70"
+            return (
+              <div key={phase.key} className="flex min-w-0 flex-1 items-center gap-3">
+                <div
+                  className={`grid h-5 w-5 shrink-0 place-items-center rounded-full ${
+                    isActive
+                      ? "bg-[var(--brand)] text-white"
+                      : "bg-transparent text-[var(--muted)] ring-1 ring-[var(--line-strong)]"
+                  }`}
+                >
+                  {isLocked ? (
+                    <Icon name="lock" className="h-3.5 w-3.5" />
+                  ) : isActive ? (
+                    <span className="h-2.5 w-2.5 rounded-full bg-white" />
+                  ) : (
+                    <span className="h-2.5 w-2.5 rounded-full bg-[var(--muted)]/70" />
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p
+                    className={`text-sm font-medium ${
+                      isActive ? "text-[var(--brand)]" : "text-[var(--foreground)]"
+                    }`}
                   >
-                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[var(--brand-soft)] text-[var(--brand)]">
-                      <Icon name={a.icon} className="h-4 w-4" />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-[13px] text-slate-800">
-                        {a.text}
+                    {phase.label}
+                    {isLocked ? " · " : ""}
+                    {isLocked ? (
+                      <span className="font-normal text-[var(--muted)]">
+                        {phaseUnlockText(phase.key, start, end)}
                       </span>
-                      <span className="block text-xs text-[var(--muted)]">
-                        {a.when}
-                      </span>
-                    </span>
-                    <Icon
-                      name="arrow"
-                      className="h-4 w-4 shrink-0 text-slate-400"
-                    />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
+                    ) : null}
+                  </p>
+                </div>
+                {index < phases.length - 1 ? (
+                  <div className="hidden h-px flex-1 bg-[var(--line-strong)] md:block" />
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="rounded-[24px] bg-[var(--surface)] px-5 py-5 shadow-[var(--card-shadow)] ring-1 ring-[var(--line)]">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
+              Active phase
+            </p>
+            <h2 className="mt-1 text-lg font-semibold text-[var(--foreground)]">
+              {activePhase.heading}
+            </h2>
+          </div>
+          <span className="text-sm font-medium text-[var(--muted)]">
+            {progressText}
+          </span>
         </div>
 
-        {/* Right rail */}
-        <div className="space-y-4">
-          <section className="card p-5">
-            <h2 className="flex items-center gap-2 text-sm font-bold text-slate-900">
-              <Icon name="bulb" className="h-4 w-4 text-amber-500" />
-              Today&rsquo;s Tip
-            </h2>
-            <p className="mt-2 text-[13px] leading-relaxed text-slate-600">
-              Write down your top 3 goals for this appointment. It helps you and
-              your doctor stay focused. Examples:
-            </p>
-            <ul className="mt-2 space-y-1 text-[13px] text-slate-600">
-              {[
-                "Understand my diagnosis",
-                "Explore treatment options",
-                "Manage symptoms better",
-              ].map((t) => (
-                <li key={t} className="flex gap-2">
-                  <span aria-hidden className="text-slate-400">
-                    &bull;
+        <div className="mt-4 divide-y divide-[var(--hairline)]">
+          {activePhase.steps.map((step) => {
+            if (step.done) {
+              return (
+                <div
+                  key={step.label}
+                  className="flex min-h-12 items-center gap-3 py-3"
+                >
+                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-emerald-500 text-white">
+                    <Icon name="check" className="h-3.5 w-3.5" />
                   </span>
-                  {t}
-                </li>
-              ))}
-            </ul>
-            <Link
-              href="/before"
-              className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--brand)] hover:underline"
-            >
-              View all tips <Icon name="arrow" className="h-3.5 w-3.5" />
-            </Link>
-          </section>
+                  <span className="min-w-0 flex-1 text-sm text-[var(--muted)]">
+                    {step.label}
+                  </span>
+                  <span className="max-w-[42%] truncate text-right text-sm text-[var(--muted)]">
+                    {step.result}
+                  </span>
+                </div>
+              );
+            }
 
-          <section className="card p-5">
-            <h2 className="flex items-center gap-2 text-sm font-bold text-slate-900">
-              <Icon name="globe" className="h-4 w-4 text-[var(--brand)]" />
-              Language &amp; Translation
-            </h2>
-            <p className="mt-2 text-[13px] text-slate-600">
-              I prefer in-appointment translation in:
-            </p>
-            <p className="mt-2 flex items-center justify-between rounded-xl border border-[var(--line)] px-3 py-2.5 text-sm text-slate-800">
-              Spanish
-              <span aria-hidden className="text-slate-400">
-                &#9662;
-              </span>
-            </p>
-            <p className="mt-2 text-xs text-[var(--muted)]">
-              Translation features work best during appointments.
-            </p>
-          </section>
-
-          <section className="card p-5">
-            <h2 className="flex items-center gap-2 text-sm font-bold text-slate-900">
-              <Icon name="headset" className="h-4 w-4 text-[var(--brand)]" />
-              Need Help?
-            </h2>
-            <p className="mt-2 text-[13px] text-slate-600">
-              We&rsquo;re here for you.
-            </p>
-            <Link
-              href="/saved"
-              className="mt-3 block rounded-xl border border-[var(--brand)]/40 px-4 py-2 text-center text-sm font-semibold text-[var(--brand)] hover:bg-[var(--brand-soft)]"
-            >
-              Contact Support
-            </Link>
-          </section>
+            return (
+              <Link
+                key={step.label}
+                href={step.href}
+                className="flex min-h-12 items-center gap-3 py-3 transition hover:bg-[var(--surface-raised)]"
+              >
+                <span className="h-6 w-6 shrink-0 rounded-full border border-[var(--line-strong)] bg-transparent" />
+                <span className="min-w-0 flex-1 text-sm font-medium text-[var(--foreground)]">
+                  {step.label}
+                </span>
+                <span className="text-sm font-semibold text-[var(--brand)]">
+                  Start →
+                </span>
+              </Link>
+            );
+          })}
         </div>
-      </div>
+      </section>
 
-      {/* Quick actions */}
-      <section className="card p-5">
-        <h2 className="text-sm font-bold text-slate-900">Quick Actions</h2>
-        <div className="mt-3 grid gap-3 sm:grid-cols-3">
-          <QuickAction
-            icon="plus"
-            title="Add Symptoms"
-            blurb="Describe what you're experiencing"
-            href="/profile"
-          />
-          <QuickAction
-            icon="flask"
-            title="Find Clinical Trials"
-            blurb="Match your profile against trials"
-            href="/profile"
-          />
-          <AskBridgeCard />
-        </div>
+      <section className="grid gap-4 md:grid-cols-2">
+        <Link
+          href="/before"
+          className="rounded-[22px] bg-[var(--surface-raised)] px-5 py-5 shadow-[var(--soft-shadow)] transition hover:bg-[var(--surface)]"
+        >
+          <div className="flex items-center gap-2 text-[var(--foreground)]">
+            <Icon name="bulb" className="h-4 w-4 text-[var(--brand)]" />
+            <h2 className="text-sm font-semibold">Today&apos;s tip</h2>
+          </div>
+          <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
+            Put your top three goals in order before the appointment starts so the conversation stays anchored to what matters most.
+          </p>
+        </Link>
+
+        <Link
+          href="/profile"
+          className="rounded-[22px] bg-[var(--surface-raised)] px-5 py-5 shadow-[var(--soft-shadow)] transition hover:bg-[var(--surface)]"
+        >
+          <div className="flex items-center gap-2 text-[var(--foreground)]">
+            <Icon name="flask" className="h-4 w-4 text-[var(--brand)]" />
+            <h2 className="text-sm font-semibold">Find clinical trials</h2>
+          </div>
+          <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
+            Match your profile against active studies and turn the results into questions worth bringing to your care team.
+          </p>
+        </Link>
       </section>
     </div>
   );

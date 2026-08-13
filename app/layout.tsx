@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import "./globals.css";
 import { Sidebar, MobileNav } from "@/components/shell/Sidebar";
 import { TopBar } from "@/components/shell/TopBar";
@@ -30,10 +31,23 @@ export default function RootLayout({
             <TopBar />
             <MobileNav />
             <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
-            <footer className="px-4 pb-8 pt-2 text-xs text-slate-400 sm:px-6 lg:px-8">
-              Bridge is an informational tool and does not provide medical
-              advice. Final eligibility is determined by the trial site, not
-              this tool.
+            <footer className="px-4 pb-8 pt-2 text-xs text-[var(--muted)] sm:px-6 lg:px-8">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <span>Private. Secure. You&apos;re in control.</span>
+                <span aria-hidden>·</span>
+                <span>
+                  Bridge is an informational tool and does not provide medical
+                  advice.
+                </span>
+                <span aria-hidden>·</span>
+                <Link href="/support" className="underline underline-offset-2">
+                  Support
+                </Link>
+                <span aria-hidden>·</span>
+                <Link href="/settings" className="underline underline-offset-2">
+                  English
+                </Link>
+              </div>
             </footer>
           </div>
         </div>

@@ -5,19 +5,17 @@
   --background: #f8f8fc;
   --foreground: #1f2233;
   --surface: #ffffff;
+  --surface-raised: #f3f4fb;
   --line: #ecebf3;
+  --line-strong: #d8dced;
+  --hairline: rgba(133, 145, 180, 0.28);
   --muted: #6b7089;
+  --card-shadow: 0 14px 36px rgba(39, 43, 72, 0.08);
+  --soft-shadow: 0 8px 24px rgba(39, 43, 72, 0.06);
 
   --brand: #6c5ce7;
   --brand-strong: #5b4bd6;
   --brand-soft: #f1eefe;
-
-  --before: #f4f1fe;
-  --before-ink: #6c5ce7;
-  --during: #fef6e7;
-  --during-ink: #d99a2b;
-  --after: #eaf7f0;
-  --after-ink: #3f9d74;
 }
 
 @theme inline {
@@ -44,6 +42,22 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #121521;
+    --foreground: #f5f7ff;
+    --surface: #1a1f31;
+    --surface-raised: #232942;
+    --line: #2d3551;
+    --line-strong: #3b4668;
+    --hairline: rgba(152, 165, 203, 0.3);
+    --muted: #b6bdd2;
+    --card-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+    --soft-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+    --brand-soft: rgba(108, 92, 231, 0.18);
+  }
+}
+
 /* Preserve newlines in verbatim eligibility criteria. */
 .criteria-text {
   white-space: pre-wrap;
@@ -55,4 +69,5 @@ body {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 1rem;
+  box-shadow: var(--soft-shadow);
 }

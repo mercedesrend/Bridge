@@ -11,10 +11,10 @@ function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
     <Link
       href={item.href}
       aria-current={active ? "page" : undefined}
-      className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
+      className={`flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
         active
           ? "bg-[var(--brand-soft)] font-semibold text-[var(--brand)]"
-          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+          : "text-[var(--muted)] hover:bg-[var(--surface-raised)] hover:text-[var(--foreground)]"
       }`}
     >
       <Icon name={item.icon} className="h-[18px] w-[18px] shrink-0" />
@@ -27,7 +27,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden w-64 shrink-0 flex-col border-r border-[var(--line)] bg-white lg:flex">
+    <aside className="hidden w-64 shrink-0 flex-col border-r border-[var(--line)] bg-[var(--surface)] lg:flex">
       <Link
         href="/"
         className="flex items-center gap-2.5 border-b border-[var(--line)] px-5 py-[18px]"
@@ -38,7 +38,7 @@ export function Sidebar() {
           </svg>
         </span>
         <span className="leading-tight">
-          <span className="block text-[15px] font-bold text-slate-900">
+          <span className="block text-[15px] font-bold text-[var(--foreground)]">
             Bridge
           </span>
           <span className="block text-[11px] text-[var(--muted)]">
@@ -64,15 +64,15 @@ export function Sidebar() {
       </nav>
 
       <div className="m-3 rounded-2xl bg-[var(--brand-soft)] p-4">
-        <p className="text-[13px] font-semibold leading-snug text-slate-800">
+        <p className="text-[13px] font-semibold leading-snug text-[var(--foreground)]">
           Built for patients.
         </p>
-        <p className="mt-1 text-[12px] leading-relaxed text-slate-600">
+        <p className="mt-1 text-[12px] leading-relaxed text-[var(--muted)]">
           Especially immigrants and families navigating healthcare.
         </p>
         <Link
           href="/profile"
-          className="mt-3 block rounded-xl bg-[var(--brand)] px-3 py-2 text-center text-[13px] font-semibold text-white hover:bg-[var(--brand-strong)]"
+          className="mt-3 block min-h-11 rounded-xl bg-[var(--brand)] px-3 py-3 text-center text-[13px] font-semibold text-white hover:bg-[var(--brand-strong)]"
         >
           Find trials
         </Link>
@@ -87,17 +87,17 @@ export function MobileNav() {
   const items = [...JOURNEY_NAV, ...RESOURCE_NAV];
 
   return (
-    <nav className="flex gap-1.5 overflow-x-auto border-b border-[var(--line)] bg-white px-3 py-2 lg:hidden">
+    <nav className="flex gap-1.5 overflow-x-auto border-b border-[var(--line)] bg-[var(--surface)] px-3 py-2 lg:hidden">
       {items.map((item) => {
         const active = isActive(item.href, pathname);
         return (
           <Link
             key={item.href}
             href={item.href}
-            className={`flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs ${
+            className={`flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs ${
               active
                 ? "bg-[var(--brand-soft)] font-semibold text-[var(--brand)]"
-                : "text-slate-600"
+                : "text-[var(--muted)]"
             }`}
           >
             <Icon name={item.icon} className="h-4 w-4" />
