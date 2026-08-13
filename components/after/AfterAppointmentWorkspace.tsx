@@ -264,7 +264,16 @@ export function AfterAppointmentWorkspace() {
           : "Upload an after-visit summary, lab, or discharge PDF",
       },
     ];
-  }, [activeDocuments.length, activeVisit, draft.decisionsMade, draft.followUpPlan, draft.nextAppointment, draft.summary]);
+  }, [
+    activeDocuments.length,
+    activeVisit,
+    draft.decisionsMade,
+    draft.followUpPlan,
+    draft.nextAppointment,
+    draft.nextAppointmentDate,
+    draft.nextAppointmentTime,
+    draft.summary,
+  ]);
 
   const completedCount = completionRows.filter((row) => row.done).length;
   const summaryStats = [
