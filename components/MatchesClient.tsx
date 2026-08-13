@@ -135,7 +135,7 @@ export function MatchesClient({
         </h2>
         <p className="mt-1 text-sm text-rose-700">{error}</p>
         <Link
-          href="/"
+          href="/profile"
           className="mt-3 inline-block rounded-lg border border-rose-300 bg-white px-3 py-1.5 text-sm text-rose-700"
         >
           Back to profile
@@ -154,14 +154,14 @@ export function MatchesClient({
 
   if (phase === "done" && matches.length === 0) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center">
+      <div className="card p-6 text-center">
         <p className="text-sm text-slate-600">
           No recruiting trials matched &ldquo;{profile.diagnosis}&rdquo;. Try a
           broader term — for example the tumor type rather than the subtype.
         </p>
         <Link
-          href="/"
-          className="mt-3 inline-block rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white"
+          href="/profile"
+          className="mt-3 inline-block rounded-xl bg-[var(--brand)] px-4 py-2 text-sm font-semibold text-white"
         >
           Edit profile
         </Link>
@@ -171,7 +171,7 @@ export function MatchesClient({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 card px-4 py-3">
         <p className="text-sm text-slate-600">
           Reviewed <span className="font-semibold">{reviewed}</span> of{" "}
           {matches.length} recruiting trials
@@ -180,7 +180,7 @@ export function MatchesClient({
         {phase === "done" && (
           <Link
             href={`/questions?p=${profileParam}`}
-            className="rounded-lg bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
+            className="rounded-xl bg-[var(--brand)] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[var(--brand-strong)]"
           >
             Build question list →
           </Link>

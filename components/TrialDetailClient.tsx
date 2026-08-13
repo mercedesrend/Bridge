@@ -98,7 +98,7 @@ export function TrialDetailClient({
 
   if (!profile) {
     return (
-      <section className="rounded-2xl border border-slate-200 bg-white p-5">
+      <section className="card p-5">
         <p className="text-sm text-slate-600">
           No profile in this link, so there&rsquo;s nothing to compare against.
           The trial&rsquo;s full criteria are below.
@@ -109,7 +109,7 @@ export function TrialDetailClient({
 
   if (loading) {
     return (
-      <section className="rounded-2xl border border-slate-200 bg-white p-5">
+      <section className="card p-5">
         <p className="text-sm text-slate-500">
           Comparing your profile against this trial&rsquo;s criteria…
         </p>
@@ -132,7 +132,7 @@ export function TrialDetailClient({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-slate-200 bg-white p-5">
+      <section className="card p-5">
         <VerdictBadge verdict={result.verdict} />
         <p className="mt-3 text-sm leading-relaxed text-slate-700">
           {VERDICT_BLURB[result.verdict]}
@@ -178,14 +178,14 @@ export function TrialDetailClient({
       )}
 
       {result.questionsForDoctor.length > 0 && (
-        <section className="rounded-2xl border border-sky-200 bg-sky-50 p-5">
-          <h2 className="text-sm font-semibold text-sky-900">
+        <section className="rounded-2xl bg-[var(--brand-soft)] p-5">
+          <h2 className="text-sm font-semibold text-slate-800">
             Questions for your care team
           </h2>
           <ul className="mt-2 space-y-2">
             {result.questionsForDoctor.map((q, i) => (
-              <li key={i} className="flex gap-2 text-sm text-sky-900">
-                <span aria-hidden className="text-sky-400">
+              <li key={i} className="flex gap-2 text-sm text-slate-800">
+                <span aria-hidden className="text-[var(--brand)]/50">
                   •
                 </span>
                 <span>{q}</span>

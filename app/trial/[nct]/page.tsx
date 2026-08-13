@@ -22,11 +22,11 @@ export default async function TrialPage({
   const sites = trial.locations.slice(0, 6);
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <Link
-          href={p ? `/matches?p=${p}` : "/"}
-          className="text-xs text-slate-500 hover:text-slate-900"
+          href={p ? `/matches?p=${p}` : "/profile"}
+          className="text-xs text-[var(--muted)] hover:text-slate-900"
         >
           ← Back to trials
         </Link>
@@ -56,7 +56,7 @@ export default async function TrialPage({
             {sites.map((loc, i) => (
               <li
                 key={i}
-                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700"
+                className="rounded-xl border border-[var(--line)] bg-white px-3 py-2 text-sm text-slate-700"
               >
                 <span className="font-medium">{loc.facility ?? "Site"}</span>
                 <span className="text-slate-500">
@@ -76,7 +76,7 @@ export default async function TrialPage({
         </section>
       )}
 
-      <details className="rounded-2xl border border-slate-200 bg-white p-5">
+      <details className="card p-5">
         <summary className="cursor-pointer text-sm font-semibold text-slate-900">
           Full eligibility criteria (verbatim)
         </summary>
@@ -89,12 +89,12 @@ export default async function TrialPage({
         href={`https://clinicaltrials.gov/study/${trial.nctId}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-block text-sm text-sky-700 hover:underline"
+        className="inline-block text-sm text-[var(--brand)] hover:underline"
       >
         View full record on ClinicalTrials.gov ↗
       </a>
 
-      <Disclaimer className="border-t border-slate-200 pt-4" />
+      <Disclaimer className="border-t border-[var(--line)] pt-4" />
     </div>
   );
 }

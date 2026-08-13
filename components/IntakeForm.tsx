@@ -11,7 +11,7 @@ import {
 } from "@/lib/profile";
 
 const fieldClass =
-  "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/30";
+  "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/25";
 const labelClass = "block text-sm font-medium text-slate-700 mb-1";
 
 export function IntakeForm({ initial }: { initial?: Profile }) {
@@ -86,7 +86,7 @@ export function IntakeForm({ initial }: { initial?: Profile }) {
         <button
           type="button"
           onClick={loadDemo}
-          className="rounded-lg border border-sky-200 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-700 hover:bg-sky-100"
+          className="rounded-lg border border-[var(--brand)]/25 bg-[var(--brand-soft)] px-3 py-1.5 text-sm font-medium text-[var(--brand)] hover:bg-[var(--brand-soft)]"
         >
           Load demo patient
         </button>
@@ -177,7 +177,7 @@ export function IntakeForm({ initial }: { initial?: Profile }) {
             min={10}
             max={500}
             step={10}
-            className="w-full accent-sky-600"
+            className="w-full accent-[var(--brand)]"
             value={profile.radiusMiles}
             onChange={(e) => set("radiusMiles", Number(e.target.value))}
           />
@@ -218,7 +218,7 @@ export function IntakeForm({ initial }: { initial?: Profile }) {
         <button
           type="submit"
           disabled={!canSubmit}
-          className="rounded-lg bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-xl bg-[var(--brand)] px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[var(--brand-strong)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           Find trials
         </button>

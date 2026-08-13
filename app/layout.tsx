@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import "./globals.css";
+import { Sidebar, MobileNav } from "@/components/shell/Sidebar";
+import { TopBar } from "@/components/shell/TopBar";
 
 export const metadata: Metadata = {
-  title: "TrialLens — find clinical trials worth asking about",
+  title: "Companion — your healthcare advocate",
   description:
-    "Compare your profile against recruiting clinical trials, criterion by criterion. Final eligibility is determined by the trial site, not this tool.",
+    "Prepare, advocate, and take action for your health. Final eligibility for any clinical trial is determined by the trial site, not this tool.",
 };
 
 export default function RootLayout({
@@ -23,29 +24,19 @@ export default function RootLayout({
         inside our own components still surface normally.
       */}
       <body className="min-h-screen antialiased" suppressHydrationWarning>
-        <header className="border-b border-slate-200 bg-white/80 backdrop-blur sticky top-0 z-10">
-          <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
-            <Link href="/" className="flex items-center gap-2 font-semibold text-slate-900">
-              <span className="grid h-7 w-7 place-items-center rounded-lg bg-sky-600 text-white text-sm">
-                TL
-              </span>
-              TrialLens
-            </Link>
-            <nav className="flex items-center gap-4 text-sm text-slate-500">
-              <Link href="/" className="hover:text-slate-900">
-                Profile
-              </Link>
-              <Link href="/questions" className="hover:text-slate-900">
-                Questions
-              </Link>
-            </nav>
+        <div className="flex min-h-screen">
+          <Sidebar />
+          <div className="flex min-w-0 flex-1 flex-col">
+            <TopBar />
+            <MobileNav />
+            <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+            <footer className="px-4 pb-8 pt-2 text-xs text-slate-400 sm:px-6 lg:px-8">
+              Companion is an informational tool and does not provide medical
+              advice. Final eligibility is determined by the trial site, not
+              this tool.
+            </footer>
           </div>
-        </header>
-        <main className="mx-auto max-w-3xl px-4 py-6">{children}</main>
-        <footer className="mx-auto max-w-3xl px-4 py-10 text-xs text-slate-400">
-          TrialLens is an informational tool and does not provide medical advice.
-          Final eligibility is determined by the trial site, not this tool.
-        </footer>
+        </div>
       </body>
     </html>
   );

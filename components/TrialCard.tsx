@@ -37,10 +37,10 @@ export function TrialCard({
     match.distanceMiles !== null && match.distanceMiles > radiusMiles;
 
   return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+    <article className="card p-4 transition hover:shadow-sm sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--muted)]">
             <span className="font-mono">{trial.nctId}</span>
             <span aria-hidden>·</span>
             <span>{phaseLabel(trial.phases)}</span>
@@ -95,7 +95,7 @@ export function TrialCard({
       <div className="mt-4 flex items-center justify-between gap-3">
         <Link
           href={`/trial/${trial.nctId}?p=${profileParam}`}
-          className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          className="rounded-xl border border-[var(--line)] px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
         >
           See criterion-by-criterion
         </Link>
@@ -103,13 +103,13 @@ export function TrialCard({
           href={`https://clinicaltrials.gov/study/${trial.nctId}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs text-sky-700 hover:underline"
+          className="text-xs text-[var(--brand)] hover:underline"
         >
           View on ClinicalTrials.gov ↗
         </a>
       </div>
 
-      <Disclaimer className="mt-3 border-t border-slate-100 pt-3" />
+      <Disclaimer className="mt-3 border-t border-[var(--line)] pt-3" />
     </article>
   );
 }
