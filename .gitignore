@@ -8,3 +8,11 @@ __pycache__/
 *.egg-info/
 .idea/
 .vscode/
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+.vercel
+.env.local
+.env*.local
+

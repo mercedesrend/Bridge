@@ -1,0 +1,10 @@
+import { readFileSync } from "fs";
+import { join } from "path";
+import { NextResponse } from "next/server";
+
+export function GET() {
+  const html = readFileSync(join(process.cwd(), "pitch/index.html"), "utf8");
+  return new NextResponse(html, {
+    headers: { "content-type": "text/html; charset=utf-8" },
+  });
+}

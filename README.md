@@ -15,20 +15,19 @@ newer treatment exists unless they know to ask.
 ## Run it (2 minutes)
 
 ```bash
-cd backend
-pip install -r requirements.txt
-cp .env.example .env          # add ANTHROPIC_API_KEY for real AI output
-python main.py
+npm install
+cp .env.example .env          # add ANTHROPIC_API_KEY for live AI output
+npm run dev
 ```
 
-Open **http://localhost:8000**
+Open **http://localhost:8000** (app) and **http://localhost:8000/pitch** (slides).
 
-Without an API key it runs in **scripted mode** — full UI, fixture data, zero
-network. With a key it makes real model calls and hits PubMed and
-ClinicalTrials.gov live.
+Without an API key it runs in **scripted mode** — full UI, fixture data. With a key it makes real model calls and hits PubMed and ClinicalTrials.gov live.
 
 **Before you demo:** set `FORCE_SCRIPTED=true` in `.env` if the venue wifi is
 unreliable. Everything still works, instantly, offline.
+
+The FastAPI tree under `backend/` is the previous local server. Vercel builds the Next.js app at the repo root of `hackday-bridge`.
 
 ---
 

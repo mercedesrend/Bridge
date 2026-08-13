@@ -3,7 +3,7 @@
 Read this before changing the app, the demo, the speech, or the slides.
 If this file conflicts with chat history or README, **this file wins** unless Amber explicitly overrides it.
 
-Amber Toor is the owner of this FastAPI + phone UI. Prefer working in code. Do not invent a second product.
+Amber Toor is the owner of this Next.js phone UI (visit companion on `hackday-bridge`). Prefer working in code. Do not invent a second product.
 
 ---
 
@@ -27,8 +27,8 @@ It is a visit advocate for first-gen / LEP families: 3 questions before, caption
 Repo: `https://github.com/mercedesrend/Bridge`
 
 - Local `main` **tracks `origin/hackday-bridge`**, not GitHub `main`.
-- GitHub **`main` is Mercedes’ Next.js app** (TrialLens / companion shell). **Never merge or force-push this FastAPI app onto `main`.**
-- Push only to `hackday-bridge`.
+- GitHub **`main` is Mercedes’ Next.js dashboard**. **Never merge or force-push this visit app onto `main`.**
+- Push this visit companion only to `hackday-bridge`.
 - Do not update git config. Do not commit unless Amber asks.
 
 ---
@@ -36,17 +36,16 @@ Repo: `https://github.com/mercedesrend/Bridge`
 ## How to run
 
 ```bash
-cd backend
-pip install -r requirements.txt
+npm install
 cp .env.example .env
-python3 main.py
+npm run dev
 ```
 
 Open **http://localhost:8000** (app) and **http://localhost:8000/pitch** (slides).
 
 Chrome only for live captions. `FORCE_SCRIPTED=true` in `.env` before going on stage so wifi cannot kill the demo.
 
-LLM order: Amazon Bedrock → Anthropic HTTP → scripted fixtures. Research (PubMed + ClinicalTrials.gov) can run without a model key. **If the model is scripted, do not dump the diabetes fixture onto a non-diabetes visit.**
+LLM order: Anthropic HTTP → scripted fixtures. Research (PubMed + ClinicalTrials.gov) can run without a model key. **If the model is scripted, do not dump the diabetes fixture onto a non-diabetes visit.**
 
 ---
 
@@ -184,19 +183,18 @@ Do not merge the two codebases. GitHub `main` stays hers.
 ## Stack
 
 ```
-frontend/     no-build HTML/CSS/JS (index.html, app.js, i18n.js, styles.css)
-backend/
-  main.py           FastAPI :8000, in-memory sessions
-  config.py         live vs scripted per capability
-  agents/           prep, interpret, recap, tutor (Ask Bridge)
-  services/llm.py   Bedrock → Anthropic → scripted
-  services/aws_health.py   Translate + Comprehend Medical
-  services/research.py     PubMed + ClinicalTrials.gov
-  data/fixtures.py  demo visit + fallbacks
-pitch/        index.html deck + SPEECH.md
+app/              Next.js App Router (pages + /api/*)
+public/static/    phone UI assets (styles.css, app.js, i18n.js)
+frontend/         source HTML/JS for the phone shell
+lib/              config, sessions, LLM, research, agents
+pitch/            10-slide deck, served at /pitch
+backend/          previous FastAPI server (local-only fallback)
 ```
 
-AWS used on purpose: **Bedrock, Translate, Comprehend Medical.**  
+LLM: Anthropic HTTP → scripted fixtures.
+Research: PubMed + ClinicalTrials.gov (no model key required).
+AWS Bedrock / Translate / Comprehend Medical remain in the FastAPI tree for the original hackathon path. The Vercel app uses Anthropic + scripted twins so the demo never dies.
+AWS used on purpose in the original FastAPI path: **Bedrock, Translate, Comprehend Medical.**
 AWS **not** used: HealthOmics (genomics). Do not bolt it on.
 
 Prep must **ground in what the user typed**. Never inject demo thirst / blurry vision into a visit about something else. Diabetes fixture only when the topic looks like diabetes or they tapped Load demo.
