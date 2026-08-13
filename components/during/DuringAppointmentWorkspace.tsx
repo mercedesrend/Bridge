@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AskBridgeInlinePrompts } from "@/components/ask/AskBridgeInlinePrompts";
+import { VisitAppLink } from "@/components/VisitAppLink";
 import { Icon } from "@/components/shell/Icon";
 import { appointmentLabelFromVisit } from "@/lib/appointments";
 import { loadSavedHistory, saveSavedHistory } from "@/lib/savedHistory";
@@ -232,13 +233,18 @@ export function DuringAppointmentWorkspace() {
               bring into the follow-up conversation.
             </p>
           </div>
-          <Link
-            href="/saved"
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-strong)]"
-          >
-            <Icon name="bookmark" className="h-4 w-4" />
-            Open Saved & Notes
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <VisitAppLink className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-strong)]">
+              Open live visit
+            </VisitAppLink>
+            <Link
+              href="/saved"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--line)] bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-[var(--brand)]/30 hover:bg-[var(--brand-soft)]"
+            >
+              <Icon name="bookmark" className="h-4 w-4" />
+              Open Saved & Notes
+            </Link>
+          </div>
         </div>
       </section>
 
