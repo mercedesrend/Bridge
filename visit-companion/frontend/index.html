@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="theme-color" content="#050505" />
+<title>Bridge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body class="theme-dark" data-screen="lang">
+<div class="glow" aria-hidden="true"></div>
+
+<div class="phone">
+  <header class="appbar">
+    <button type="button" id="btn-back" class="icon-btn hidden" aria-label="Back">‹</button>
+    <a class="brand" href="#" id="brand-home">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <!-- Extra chair: one person seated, one empty seat. The span between them is the bridge. -->
+        <path d="M7 20h6M8 20v6M12 20v6M9 20V10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M19 20h6M20 20v6M24 20v6M23 20V10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M13 20h6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="9" cy="7.2" r="2.1" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M9 9.4v8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span class="brand-name">Bridge</span>
+    </a>
+    <div class="appbar-right">
+      <button id="btn-text" class="icon-btn" type="button" data-i18n="textAa">Aa</button>
+      <button id="btn-reset" class="text-btn hidden" type="button" data-i18n="startOver">Start over</button>
+    </div>
+  </header>
+  <div class="dots" aria-hidden="true">
+    <i data-p="before" class="is-on"></i>
+    <i data-p="during"></i>
+    <i data-p="after"></i>
+  </div>
+
+  <select id="language" class="hidden" aria-hidden="true"></select>
+  <select id="ui-language" class="hidden" aria-hidden="true"></select>
+  <input type="hidden" id="reading_level" value="simple" />
+
+  <!-- 1. Language -->
+  <section class="screen is-on" data-screen="lang">
+    <div class="screen-body">
+      <p class="kicker" data-i18n="chooseLanguage">Choose your language first</p>
+      <h1 data-i18n="langTitle">Your language.</h1>
+      <p class="lede" data-i18n="langSub">One tap. The rest of Bridge follows you.</p>
+      <div id="lang-bar" class="lang-bar" role="list"></div>
+    </div>
+    <div class="dock">
+      <button type="button" class="btn btn-primary" id="btn-lang-next" data-i18n="continue">Continue</button>
+    </div>
+  </section>
+
+  <!-- 2. Home -->
+  <section class="screen" data-screen="home">
+    <div class="screen-body">
+      <h1 data-i18n="heroTitle">Don’t go in alone.</h1>
+      <p class="lede" data-i18n="heroSub">Built for first-gen families. Your visit, in your language.</p>
+      <p class="time-chip" data-i18n="timeChip">Most visits are 15 minutes. Bridge keeps you to 3 questions.</p>
+      <ul class="steps">
+        <li><strong data-i18n="welcomeBefore">Before</strong><span data-i18n="welcomeBeforeBody">3 questions to ask first — not a stack of papers.</span></li>
+        <li><strong data-i18n="welcomeDuring">During</strong><span data-i18n="welcomeDuringBody">Captions in your language. Check off as you go.</span></li>
+        <li><strong data-i18n="welcomeAfter">After</strong><span data-i18n="welcomeAfterBody">A note for family, and what never got asked.</span></li>
+      </ul>
+      <p class="fine" data-i18n="trustLine">Private. No name. No immigration questions. Interpreter is free by law.</p>
+    </div>
+    <div class="dock">
+      <button type="button" class="btn btn-primary" id="btn-start" data-i18n="getReady">Get me ready</button>
+      <button type="button" class="btn btn-ghost" id="btn-demo-live" data-i18n="demoLive">Run 2-min demo</button>
+    </div>
+  </section>
+
+  <!-- 3. Visit -->
+  <section class="screen" data-screen="visit">
+    <div class="screen-body">
+      <p class="kicker" data-i18n="stepOf">1 of 2</p>
+      <h1 data-i18n="formTitle">Tell us about the visit</h1>
+      <p class="lede" data-i18n="formLead">We are not a doctor. We never say what you have. We help you ask.</p>
+      <form id="prep-form" class="fields">
+        <div class="field">
+          <label for="condition" data-i18n="labelCondition">What is this visit about?</label>
+          <input id="condition" name="condition" type="text" required
+                 placeholder="e.g. type 2 diabetes" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="symptoms"><span data-i18n="labelSymptoms">What’s going on, in your words?</span> <span class="opt" data-i18n="optional">Optional</span></label>
+          <textarea id="symptoms" name="symptoms" rows="3"
+                    placeholder="e.g. thirsty all the time, tired, hard to follow when they talk fast"></textarea>
+        </div>
+        <label class="check">
+          <input type="checkbox" id="helping-family" />
+          <span data-i18n="helpingFamily">I am helping a family member</span>
+        </label>
+      </form>
+    </div>
+    <div class="dock">
+      <button type="button" class="btn btn-primary" id="btn-visit-next" data-i18n="continue">Continue</button>
+      <button type="button" class="btn btn-ghost" id="btn-demo" data-i18n="loadDemo">Load demo</button>
+    </div>
+  </section>
+
+  <!-- 4. Story -->
+  <section class="screen" data-screen="story">
+    <div class="screen-body">
+      <p class="kicker" data-i18n="stepOf2">2 of 2 · optional</p>
+      <h1 data-i18n="historyTitle">Your health story</h1>
+      <p class="lede" data-i18n="historyLead">Skip if you are in a hurry. This makes the 3 questions fit you.</p>
+      <div class="fields">
+        <div class="field">
+          <label for="age_range" data-i18n="labelAge">Age range</label>
+          <select id="age_range" name="age_range">
+            <option value="" data-i18n="ageSkip">Prefer not to say</option>
+            <option value="18-34">18–34</option>
+            <option value="35-49">35–49</option>
+            <option value="50-64">50–64</option>
+            <option value="65+">65+</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="medications" data-i18n="labelMeds">Medicines you already take</label>
+          <textarea id="medications" name="medications" rows="2" data-i18n-placeholder="phMeds" placeholder="e.g. lisinopril 10 mg daily"></textarea>
+        </div>
+        <div class="field">
+          <label for="other_conditions" data-i18n="labelOther">Other conditions</label>
+          <input id="other_conditions" name="other_conditions" type="text" data-i18n-placeholder="phOther" placeholder="e.g. high blood pressure" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="allergies" data-i18n="labelAllergies">Allergies</label>
+          <input id="allergies" name="allergies" type="text" data-i18n-placeholder="phAllergies" placeholder="e.g. penicillin, none that I know" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="family_history" data-i18n="labelFamilyHx">Family health history</label>
+          <textarea id="family_history" name="family_history" rows="2" data-i18n-placeholder="phFamilyHx" placeholder="e.g. mother had diabetes"></textarea>
+        </div>
+        <div class="field">
+          <label for="context" data-i18n="labelContext">Anything else?</label>
+          <textarea id="context" name="context" rows="2" data-i18n-placeholder="phContext" placeholder="e.g. my daughter usually translates"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="dock">
+      <button type="button" class="btn btn-primary" id="btn-story-go" data-i18n="getReady">Get me ready</button>
+      <button type="button" class="btn btn-ghost" id="btn-story-skip" data-i18n="skipThis">Skip — just the visit topic</button>
+    </div>
+  </section>
+
+  <!-- 5. Brief: questions only -->
+  <section class="screen" data-screen="brief-q">
+    <div class="screen-body">
+      <p class="kicker" data-i18n="askTheseKicker">Ask these first. Visits run out of time.</p>
+      <h1 data-i18n="briefTitle">Your brief.</h1>
+      <div id="brief-for-you"></div>
+      <div id="brief-questions"></div>
+      <div id="brief-trial-ask"></div>
+      <div id="brief-phrase-fast"></div>
+    </div>
+    <div class="dock">
+      <button type="button" class="btn btn-primary" id="btn-to-room" data-i18n="atAppointment">I’m at my appointment</button>
+      <button type="button" class="btn btn-ghost" id="btn-brief-more" data-i18n="seeMore">If you have a minute — treatments</button>
+    </div>
+  </section>
+
+  <!-- 6. Brief extra -->
+  <section class="screen" data-screen="brief-more">
+    <div class="screen-body">
+      <h1 data-i18n="moreTitle">If there is time.</h1>
+      <p class="lede" data-i18n="moreSub">Read this in the waiting room. Do not start this in the exam room.</p>
+      <div id="rights-card" class="card rights-card"></div>
+      <div id="brief-phrases"></div>
+      <div id="brief-summary" class="card"></div>
+      <div id="brief-tips"></div>
+      <div id="brief-treatments"></div>
+      <div id="brief-trials"></div>
+      <div id="brief-flags"></div>
+      <div id="brief-sources"></div>
+    </div>
+    <div class="dock">
+      <button type="button" class="btn btn-primary" id="btn-to-room-2" data-i18n="atAppointment">I’m at my appointment</button>
+    </div>
+  </section>
+
+  <!-- 7. Consent -->
+  <section class="screen" data-screen="consent">
+    <div class="screen-body">
+      <h1 data-i18n="consentTitle">The phone is not listening yet.</h1>
+      <p class="lede" data-i18n="consentSub">If you say yes, the visit is written on your screen in your language so you can follow along. You can stop anytime.</p>
+      <div class="card tight">
+        <ul class="consent-list" id="consent-list">
+          <li data-i18n="consent1">The talk is written in your language, live.</li>
+          <li data-i18n="consent2">It is only used to write the family note after.</li>
+          <li data-i18n="consent3">It is gone when you close this.</li>
+        </ul>
+        <p class="hint" data-i18n="consentAid">This is not a professional interpreter. You can still ask the clinic for one — it is free.</p>
+        <p class="hint" data-i18n="consentWarn">Tell the doctor you are recording.</p>
+        <label class="check">
+          <input type="checkbox" id="consent-check" />
+          <span data-i18n="consentCheck">I understand, and I have told the doctor.</span>
+        </label>
+      </div>
+    </div>
+    <div class="dock">
+      <button id="btn-consent" class="btn btn-primary" type="button" disabled data-i18n="turnOn">Turn on captions</button>
+      <button id="btn-demo-visit" class="btn btn-ghost" type="button" data-i18n="playDemoVisit">Play demo visit</button>
+      <button id="btn-skip-consent" class="btn btn-ghost" type="button" data-i18n="skipNow">Skip captions</button>
+    </div>
+  </section>
+
+  <!-- 8. Live -->
+  <section class="screen" data-screen="live">
+    <div class="screen-body live-body">
+      <p class="live-pulse"><span class="dot"></span> <span data-i18n="following">Following along.</span></p>
+      <p class="sub" id="live-sub"></p>
+      <div class="live-controls">
+        <button id="btn-mic" class="btn btn-primary btn-sm" type="button" data-i18n="startListening">Start listening</button>
+        <button id="btn-play" class="btn btn-secondary btn-sm" type="button" data-i18n="simulate">Simulate</button>
+        <button id="btn-play-all" class="btn btn-ghost btn-sm" type="button" data-i18n="skipEnd">Skip to end</button>
+      </div>
+      <div class="stt-bar">
+        <div class="speaker-toggle" role="group">
+          <button class="toggle is-active" id="spk-doctor" data-speaker="doctor" type="button" data-i18n="doctor">Doctor</button>
+          <button class="toggle" id="spk-patient" data-speaker="patient" type="button" data-i18n="you">You</button>
+        </div>
+        <div id="stt-status" class="stt-status" data-i18n="micOff">Mic off</div>
+      </div>
+      <div class="bars hidden" id="stt-bars" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="toggle-row hidden" id="caption-modes">
+        <button class="toggle is-active" data-view="plain" type="button" data-i18n="plainWords">Plain words</button>
+        <button class="toggle" data-view="translation" type="button" data-i18n="directTr">Direct</button>
+        <button class="toggle" data-view="original" type="button" data-i18n="whatSaid">Said</button>
+      </div>
+      <div id="transcript" class="transcript" aria-live="polite"></div>
+      <div id="live-interim" class="turn turn-interim hidden">
+        <div class="turn-who" id="interim-who">Hearing…</div>
+        <div class="turn-text" id="interim-text"></div>
+      </div>
+      <div id="terms-panel" class="card hidden">
+        <h2 data-i18n="wordsUp">Words that came up</h2>
+        <div id="terms-list" class="term-grid"></div>
+      </div>
+      <div id="live-questions" class="card"></div>
+      <textarea id="live-notes" class="notes-mini" rows="2" data-i18n-placeholder="notesPh" placeholder="Note for family…"></textarea>
+    </div>
+    <div class="dock">
+      <button class="btn btn-primary" id="btn-visit-over" type="button" data-i18n="visitOver">The visit is over</button>
+    </div>
+  </section>
+
+  <!-- 9. After start -->
+  <section class="screen" data-screen="after">
+    <div class="screen-body">
+      <h1 data-i18n="takeHome">Take the visit home.</h1>
+      <p class="lede" data-i18n="takeHomeSub">A note you can send, plus the questions that never got asked.</p>
+    </div>
+    <div class="dock">
+      <button id="btn-recap" class="btn btn-primary" type="button" data-i18n="writeFamily">Write it for my family</button>
+    </div>
+  </section>
+
+  <!-- 10. Family note -->
+  <section class="screen" data-screen="after-note">
+    <div class="screen-body">
+      <h1 data-i18n="noteTitle">Send this.</h1>
+      <div id="recap-headline" class="card"></div>
+      <div id="recap-family"></div>
+    </div>
+    <div class="dock">
+      <button id="btn-copy" class="btn btn-primary" type="button" data-i18n="copyFamily">Copy for family</button>
+      <button type="button" class="btn btn-ghost" id="btn-to-gaps" data-i18n="seeGaps">What never got asked</button>
+    </div>
+  </section>
+
+  <!-- 11. Gaps + plan -->
+  <section class="screen" data-screen="after-gaps">
+    <div class="screen-body">
+      <h1 data-i18n="gapsTitle">Still open.</h1>
+      <div id="recap-score"></div>
+      <div id="recap-gaps"></div>
+      <div id="recap-decided"></div>
+      <div id="recap-meds"></div>
+      <div id="recap-places"></div>
+      <div id="recap-next"></div>
+      <div id="recap-opinion"></div>
+      <div class="take-home-actions">
+        <button id="btn-print" class="btn btn-secondary" type="button" data-i18n="print">Print</button>
+        <button id="btn-export" class="btn btn-ghost" type="button">JSON</button>
+      </div>
+    </div>
+    <div class="dock">
+      <button type="button" class="btn btn-primary" id="btn-done" data-i18n="done">Done</button>
+    </div>
+  </section>
+</div>
+
+<aside id="ask-bridge" class="ask">
+  <button type="button" id="ask-toggle" class="ask-toggle" aria-expanded="false" aria-controls="ask-panel">
+    <span data-i18n="askToggle">Ask Bridge</span>
+  </button>
+  <div id="ask-panel" class="ask-panel hidden" role="dialog" aria-labelledby="ask-title">
+    <div class="ask-head">
+      <div>
+        <h2 id="ask-title" data-i18n="askTitle">Ask Bridge</h2>
+        <p class="hint" data-i18n="askLead">Learn about your body. Not a diagnosis.</p>
+      </div>
+      <button type="button" id="ask-close" class="btn btn-secondary btn-sm" data-i18n="askClose">Close</button>
+    </div>
+    <div id="ask-starters" class="ask-starters"></div>
+    <div id="ask-log" class="ask-log"></div>
+    <form id="ask-form" class="ask-form">
+      <label class="sr-only" for="ask-input" data-i18n="askPh">Ask about a word or how your body works</label>
+      <input id="ask-input" type="text" autocomplete="off" data-i18n-placeholder="askPh" placeholder="Ask about a word or how your body works" />
+      <button class="btn btn-primary btn-sm" type="submit" data-i18n="askSend">Send</button>
+    </form>
+  </div>
+</aside>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<span id="mode-pill" class="hidden"></span>
+<div id="before-form" class="hidden"></div>
+<div id="before-result" class="hidden"></div>
+<div id="consent-gate" class="hidden"></div>
+<div id="live-view" class="hidden"></div>
+<div id="after-empty" class="hidden"></div>
+<div id="after-result" class="hidden"></div>
+<div id="audit-drawer" class="hidden"><span id="audit-count"></span><ol id="audit-list"></ol></div>
+
+<script src="/static/i18n.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

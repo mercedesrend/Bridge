@@ -1,5 +1,25 @@
 # Bridge
 
+**Two apps live in this repo.**
+
+| What | Where |
+| --- | --- |
+| **Visit companion** (phone UI, captions, gap check, pitch deck) | [`visit-companion/`](./visit-companion) · also branch [`hackday-bridge`](https://github.com/mercedesrend/Bridge/tree/hackday-bridge) |
+| **Dashboard + trial matcher** (this folder) | branch `main` · https://bridge-sigma-nine.vercel.app |
+
+To run the visit companion:
+
+```bash
+cd visit-companion
+npm install
+cp .env.example .env
+npm run dev
+```
+
+Open http://localhost:8000 (app) and http://localhost:8000/pitch (slides). Pitch HTML: [`visit-companion/pitch/index.html`](./visit-companion/pitch/index.html).
+
+---
+
 Compare a patient profile against currently recruiting clinical trials, one
 eligibility criterion at a time — so a patient can walk into an appointment with
 a focused list of questions.
