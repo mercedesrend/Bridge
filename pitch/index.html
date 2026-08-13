@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bridge — pitch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #050505;
+    --fg: #f4f4f4;
+    --muted: #8a8a8a;
+    --dim: #3a3a3a;
+    --line: #222;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--fg);
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+  .deck { height: 100%; position: relative; }
+  .slide {
+    display: none;
+    height: 100%;
+    padding: 8vh 8vw 12vh;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .slide.is-on { display: flex; }
+  .kicker {
+    font-size: 14px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 28px;
+    font-weight: 500;
+  }
+  h1 {
+    font-size: clamp(40px, 6.4vw, 92px);
+    font-weight: 600;
+    letter-spacing: -0.045em;
+    line-height: 1.05;
+    margin: 0;
+  }
+  h1 em { font-style: normal; color: var(--muted); }
+  .lede {
+    font-size: clamp(20px, 2.2vw, 32px);
+    line-height: 1.35;
+    color: var(--muted);
+    max-width: 18em;
+    margin: 28px 0 0;
+    font-weight: 400;
+  }
+  .stat {
+    font-size: clamp(72px, 14vw, 180px);
+    font-weight: 600;
+    letter-spacing: -0.06em;
+    line-height: 0.9;
+    margin: 0;
+  }
+  .brand-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+  .brand-mark { width: 48px; height: 48px; color: var(--fg); }
+  .brand-name { font-size: 22px; font-weight: 600; letter-spacing: -0.03em; }
+  .foot {
+    position: absolute;
+    left: 8vw; right: 8vw; bottom: 4.5vh;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--dim);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    pointer-events: none;
+  }
+  .dots { display: flex; gap: 6px; }
+  .dots i {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--fg); opacity: 0.18;
+  }
+  .dots i.is-on { opacity: 1; }
+  .list { list-style: none; padding: 0; margin: 12px 0 0; }
+  .list li {
+    font-size: clamp(22px, 2.6vw, 36px);
+    letter-spacing: -0.03em;
+    padding: 16px 0;
+    border-top: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 24px;
+    align-items: baseline;
+  }
+  .list li:last-child { border-bottom: 1px solid var(--line); }
+  .list strong { font-weight: 600; }
+  .list span { color: var(--muted); font-weight: 400; }
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8vw;
+    align-items: start;
+  }
+  .split h1 { font-size: clamp(32px, 4vw, 56px); }
+  .no { color: var(--muted); }
+  .yes { }
+  .tiny { font-size: 15px; color: var(--dim); margin-top: 40px; max-width: 42em; line-height: 1.5; }
+  .demo-mark {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: #c44; display: inline-block;
+    margin-right: 10px; vertical-align: middle;
+  }
+  .notes {
+    display: none;
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    background: #111;
+    border-top: 1px solid #2a2a2a;
+    padding: 16px 8vw 20px;
+    font-size: 15px;
+    line-height: 1.45;
+    color: #c8c8c8;
+    max-height: 28vh;
+    overflow: auto;
+  }
+  body.show-notes .notes { display: block; }
+  body.show-notes .slide { padding-bottom: 32vh; }
+  body.show-notes .foot { bottom: 30vh; }
+  .help {
+    position: absolute;
+    top: 18px; right: 24px;
+    font-size: 12px;
+    color: var(--dim);
+    z-index: 2;
+  }
+  .help kbd {
+    font: 11px/1 var(--sans);
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 2px 6px;
+    color: #666;
+  }
+  @media print {
+    html, body { height: auto; overflow: visible; background: #fff; color: #111; }
+    .help, .foot, .notes { display: none !important; }
+    .slide {
+      display: flex !important;
+      height: 100vh;
+      page-break-after: always;
+      color: #111;
+    }
+    .lede, .list span, .kicker, .no { color: #555; }
+    .list li { border-color: #ddd; }
+  }
+</style>
+</head>
+<body>
+<div class="help">← → <kbd>F</kbd> fullscreen · <kbd>S</kbd> notes</div>
+
+<div class="deck" id="deck">
+
+  <section class="slide is-on" data-notes="10 seconds. Names, then the line. Do not explain the product yet.">
+    <div class="brand-row">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M7 20h6M8 20v6M12 20v6M9 20V10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M19 20h6M20 20v6M24 20v6M23 20V10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M13 20h6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="9" cy="7.2" r="2.1" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M9 9.4v8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span class="brand-name">Bridge</span>
+    </div>
+    <h1>The extra chair<br>in the exam room.</h1>
+    <p class="lede">Not the doctor. Not the interpreter. The question that never gets asked.</p>
+  </section>
+
+  <section class="slide" data-notes="25 seconds. Tell it like a scene. End on “good guest.” Pause.">
+    <p class="kicker">A 15-minute visit</p>
+    <h1>She says she has<br>no questions.</h1>
+    <p class="lede">That is not the truth. That is being a good guest in a room that isn’t hers.</p>
+  </section>
+
+  <section class="slide" data-notes="15 seconds. Read the number. One sentence. Do not stack stats.">
+    <p class="stat">25.7M</p>
+    <p class="lede">people in the US get care in a language that is not theirs. Spanish is two-thirds of them.</p>
+  </section>
+
+  <section class="slide" data-notes="25 seconds. This is the pharma / observability slide. Name GLP-1. “Silence is not disinterest.”">
+    <p class="kicker">Treatment observability</p>
+    <h1>Newer treatments exist.<br><em>They are not told.</em></h1>
+    <p class="lede">GLP-1 uptake is lower where diabetes burden is higher — not because patients refused. Because the question never came up.</p>
+  </section>
+
+  <section class="slide" data-notes="20 seconds. Draw the boundary. If a judge hears “AI doctor,” you lost.">
+    <div class="split">
+      <div>
+        <p class="kicker no">Not this</p>
+        <h1 class="no">AI doctor.<br>AI interpreter.</h1>
+      </div>
+      <div>
+        <p class="kicker">This</p>
+        <h1>The extra chair.<br>So she asks.</h1>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-notes="20 seconds. Three beats only. Then go to the phone.">
+    <p class="kicker">One visit</p>
+    <ul class="list">
+      <li><strong>Before</strong><span>3 questions. Not a binder.</span></li>
+      <li><strong>During</strong><span>“I have two more questions.” Captions in her language.</span></li>
+      <li><strong>After</strong><span>A note for her daughter. And what never got asked.</span></li>
+    </ul>
+  </section>
+
+  <section class="slide" data-notes="Switch to the phone. Do not keep talking over the first screen. Point at question 2, then play the visit, then land on the gap.">
+    <p class="kicker"><span class="demo-mark"></span> Live</p>
+    <h1>Watch the phone.</h1>
+    <p class="lede">Spanish-speaking. First-gen. Type 2 diabetes. She prepared a GLP-1 question.</p>
+  </section>
+
+  <section class="slide" data-notes="20 seconds after the gap screen. This is the company. Then sit down almost — AWS is one breath.">
+    <p class="kicker">The gap</p>
+    <h1>Prepared.<br><em>Never asked.</em></h1>
+    <p class="lede">She will send this to her daughter tonight. The daughter will ask.</p>
+  </section>
+
+  <section class="slide" data-notes="20 seconds. Name Bedrock, Translate, Comprehend Medical. Say why not HealthOmics. Privacy one line.">
+    <p class="kicker">In this room, on AWS</p>
+    <ul class="list">
+      <li><strong>Bedrock</strong><span>The brief and the family note. Claude. Degrades if the wifi dies.</span></li>
+      <li><strong>Translate</strong><span>Captions that cannot wait on a model.</span></li>
+      <li><strong>Comprehend Medical</strong><span>Jargon out of what the doctor actually said.</span></li>
+    </ul>
+    <p class="tiny">Not HealthOmics — that is a genomics pipeline. This is a 15-minute visit. Nothing stored. No name. No immigration questions. Interpreter still free by law.</p>
+  </section>
+
+  <section class="slide" data-notes="25 seconds. Who writes the check, then the last line. Stop talking. Thank you.">
+    <p class="kicker">Who pays</p>
+    <ul class="list">
+      <li><strong>Clinics</strong><span>Language access. Visits that finish on time.</span></li>
+      <li><strong>Pharma</strong><span>Proof the option was even asked — in Spanish, in 15 minutes.</span></li>
+    </ul>
+    <h1 style="margin-top:48px;font-size:clamp(28px,3.4vw,48px)">We are the extra chair.</h1>
+  </section>
+
+</div>
+
+<div class="foot">
+  <span>Bridge · AWS Biopharma Hack Day</span>
+  <span class="dots" id="dots"></span>
+  <span id="pos">1 / 10</span>
+</div>
+<aside class="notes" id="notes"></aside>
+
+<script>
+  const slides = [...document.querySelectorAll(".slide")];
+  const dots = document.getElementById("dots");
+  const pos = document.getElementById("pos");
+  const notes = document.getElementById("notes");
+  let i = 0;
+
+  slides.forEach(() => {
+    const d = document.createElement("i");
+    dots.appendChild(d);
+  });
+
+  function go(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle("is-on", k === i));
+    [...dots.children].forEach((d, k) => d.classList.toggle("is-on", k === i));
+    pos.textContent = `${i + 1} / ${slides.length}`;
+    notes.textContent = slides[i].dataset.notes || "";
+    history.replaceState(null, "", `#${i + 1}`);
+  }
+
+  function next() { go(i + 1); }
+  function prev() { go(i - 1); }
+
+  document.addEventListener("keydown", (e) => {
+    if (["ArrowRight", "ArrowDown", "PageDown", " ", "Enter"].includes(e.key)) {
+      e.preventDefault();
+      next();
+    } else if (["ArrowLeft", "ArrowUp", "PageUp", "Backspace"].includes(e.key)) {
+      e.preventDefault();
+      prev();
+    } else if (e.key === "Home") {
+      go(0);
+    } else if (e.key === "End") {
+      go(slides.length - 1);
+    } else if (e.key === "s" || e.key === "S") {
+      document.body.classList.toggle("show-notes");
+    } else if (e.key === "f" || e.key === "F") {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    }
+  });
+
+  document.getElementById("deck").addEventListener("click", (e) => {
+    if (e.target.closest("a")) return;
+    if (e.clientX < window.innerWidth * 0.18) prev();
+    else next();
+  });
+
+  if (location.search.includes("notes=1")) document.body.classList.add("show-notes");
+  const hash = parseInt(location.hash.replace("#", ""), 10);
+  go(Number.isFinite(hash) && hash >= 1 ? hash - 1 : 0);
+</script>
+</body>
+</html>

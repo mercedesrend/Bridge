@@ -53,9 +53,11 @@ function showScreen(id) {
       : "after";
   $$(".dots i").forEach((d) => d.classList.toggle("is-on", d.dataset.p === chapter));
   $("#btn-back")?.classList.toggle("hidden", id === "lang" || !BACK[id]);
+  $("#btn-reset")?.classList.toggle("hidden", id === "lang");
   window.scrollTo(0, 0);
   const body = document.querySelector(`.screen.is-on .screen-body`);
   if (body) body.scrollTop = 0;
+  if (!$("#ask-panel")?.classList.contains("hidden")) renderAskStarters();
 }
 
 const $ = (sel) => document.querySelector(sel);
@@ -471,6 +473,26 @@ function renderBrief(b) {
     : "";
   if (qs.length) bindQuestionChecks($("#prep-q-list"));
 
+  const trialAsk = $("#brief-trial-ask");
+  if (trialAsk) {
+    const top = (b.trials || [])[0];
+    trialAsk.innerHTML = top
+      ? `<div class="card">
+          <p class="tx-kicker">${esc(t("worthAsking"))}</p>
+          <h2>${esc(t("askThisStudy"))}</h2>
+          <p class="hint" style="margin-bottom:12px">${esc(t("trialSiteDecides"))}</p>
+          <div class="src">
+            <div>
+              <a href="${esc(top.url)}" target="_blank" rel="noopener">${esc(top.title)}</a>
+              <div class="src-meta">${esc(top.status || "")}${
+                (top.locations || [])[0] ? " · " + esc(top.locations[0]) : ""
+              }</div>
+            </div>
+          </div>
+        </div>`
+      : "";
+  }
+
   const std = b.standard_treatments || [];
   const emerging = b.emerging_options || [];
   $("#brief-treatments").innerHTML =
@@ -519,19 +541,19 @@ function renderBrief(b) {
         </div>`
       : "";
 
-  const trials = b.trials || [];
+  const trials = (b.trials || []).slice(0, 2);
   $("#brief-trials").innerHTML = trials.length
     ? `<div class="card">
-        <p class="tx-kicker">Treatment observability</p>
+        <p class="tx-kicker">${esc(t("worthAsking"))}</p>
         <h2>${esc(t("studiesAsk"))}</h2>
-        <p class="hint" style="margin-bottom:14px">Not a match — a conversation starter. Matching by condition only, not eligibility. Ask your doctor if any of this applies to you.</p>
+        <p class="hint" style="margin-bottom:14px">${esc(t("trialSiteDecides"))}</p>
         ${trials
           .map(
-            (t) => `<div class="src">
+            (tr) => `<div class="src">
               <div>
-                <a href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.title)}</a>
-                <div class="src-meta">${esc(t.status || "")}${
-                  (t.locations || [])[0] ? " · " + esc(t.locations[0]) : ""
+                <a href="${esc(tr.url)}" target="_blank" rel="noopener">${esc(tr.title)}</a>
+                <div class="src-meta">${esc(tr.status || "")}${
+                  (tr.locations || [])[0] ? " · " + esc(tr.locations[0]) : ""
                 }</div>
               </div>
             </div>`
@@ -1049,10 +1071,11 @@ function renderRecap(r) {
         <p class="hint" style="margin-bottom:14px">People often say “no more questions” when they feel rushed. That is not the same as being done.</p>
         ${gaps
           .map(
-            (g) => `<div class="gap">
+            (g, i) => `<div class="gap">
               <div class="gap-q">${esc(g.question)}</div>
               <div class="gap-why">${esc(g.why_it_matters)}</div>
               <div class="gap-how"><strong>What to do:</strong> ${esc(g.how_to_follow_up)}</div>
+              <button type="button" class="btn btn-ghost btn-sm" data-gap-i="${i}">${esc(t("copyPortal"))}</button>
             </div>`
           )
           .join("")}
@@ -1160,6 +1183,26 @@ $("#btn-copy").addEventListener("click", async () => {
     await navigator.clipboard.writeText(familyText());
     toast(t("copied"));
   } catch (err) {
+    toast("Could not copy");
+  }
+});
+
+function portalMessage(g) {
+  const q = (g && g.question) || "";
+  return state.uiLang === "es"
+    ? `Hola, en mi cita no alcancé a preguntar:\n\n${q}\n\n¿Me pueden responder por el portal o en la próxima cita? Gracias.`
+    : `Hello, I did not get to ask this at my visit:\n\n${q}\n\nCould you answer through the portal or at my next appointment? Thank you.`;
+}
+
+$("#recap-gaps")?.addEventListener("click", async (e) => {
+  const btn = e.target.closest("[data-gap-i]");
+  if (!btn) return;
+  const gap = (state.recap?.unanswered_questions || [])[Number(btn.dataset.gapI)];
+  if (!gap) return;
+  try {
+    await navigator.clipboard.writeText(portalMessage(gap));
+    toast(t("portalCopied"));
+  } catch (_) {
     toast("Could not copy");
   }
 });
@@ -1285,7 +1328,24 @@ $("#btn-to-gaps")?.addEventListener("click", () => showScreen("after-gaps"));
 $("#btn-done")?.addEventListener("click", () => showScreen("home"));
 
 function askStarterList() {
-  return state.uiLang === "es"
+  const es = state.uiLang === "es";
+  const screen = state.screen;
+  if (screen === "consent" || screen === "live") {
+    return es
+      ? ["¿Cómo pido un intérprete?", "¿Qué digo si no entiendo?", "¿Puedo pedir que hablen más despacio?"]
+      : ["How do I ask for an interpreter?", "What do I say if I don’t understand?", "How do I ask them to slow down?"];
+  }
+  if (screen === "brief-q" || screen === "brief-more") {
+    return es
+      ? ["¿Qué es un estudio clínico?", "¿Qué son las medicinas GLP-1?", "¿Qué significa la A1C?"]
+      : ["What is a clinical trial?", "What are GLP-1 medicines?", "What does A1C mean?"];
+  }
+  if (screen === "after-note" || screen === "after-gaps") {
+    return es
+      ? ["¿Qué escribo en el portal?", "¿Qué es una medicina GLP-1?", "¿El doctor se enoja si pregunto después?"]
+      : ["What should I write in the portal?", "What is a GLP-1 medicine?", "Will the doctor mind if I ask after?"];
+  }
+  return es
     ? [
         "¿Qué significa la A1C?",
         "¿Cómo maneja el azúcar mi cuerpo?",

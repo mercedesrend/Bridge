@@ -19,16 +19,18 @@
     <button type="button" id="btn-back" class="icon-btn hidden" aria-label="Back">‹</button>
     <a class="brand" href="#" id="brand-home">
       <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
-        <path d="M16 6c1.8 3.2 3 6.4 3 9.5 0 2.6-1.3 5-3 6.5-1.7-1.5-3-3.9-3-6.5C13 12.4 14.2 9.2 16 6z" fill="none" stroke="currentColor" stroke-width="1.4"/>
-        <path d="M7.5 13.5c3.4.2 6.6 1.6 8.5 3.8 1.6 1.9 2.4 4.4 2.2 7" fill="none" stroke="currentColor" stroke-width="1.4"/>
-        <path d="M24.5 13.5c-3.4.2-6.6 1.6-8.5 3.8-1.6 1.9-2.4 4.4-2.2 7" fill="none" stroke="currentColor" stroke-width="1.4"/>
-        <circle cx="16" cy="18.5" r="1.2" fill="currentColor"/>
+        <!-- Extra chair: one person seated, one empty seat. The span between them is the bridge. -->
+        <path d="M7 20h6M8 20v6M12 20v6M9 20V10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M19 20h6M20 20v6M24 20v6M23 20V10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M13 20h6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="9" cy="7.2" r="2.1" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M9 9.4v8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
       <span class="brand-name">Bridge</span>
     </a>
     <div class="appbar-right">
       <button id="btn-text" class="icon-btn" type="button" data-i18n="textAa">Aa</button>
-      <button id="btn-reset" class="icon-btn" type="button" title="Start over" data-i18n="startOverShort">↺</button>
+      <button id="btn-reset" class="text-btn hidden" type="button" data-i18n="startOver">Start over</button>
     </div>
   </header>
   <div class="dots" aria-hidden="true">
@@ -76,7 +78,7 @@
   <!-- 3. Visit -->
   <section class="screen" data-screen="visit">
     <div class="screen-body">
-      <p class="kicker" data-i18n="stepOf" data-i18n-vars="1/2">1 of 2</p>
+      <p class="kicker" data-i18n="stepOf">1 of 2</p>
       <h1 data-i18n="formTitle">Tell us about the visit</h1>
       <p class="lede" data-i18n="formLead">We are not a doctor. We never say what you have. We help you ask.</p>
       <form id="prep-form" class="fields">
@@ -98,6 +100,7 @@
     </div>
     <div class="dock">
       <button type="button" class="btn btn-primary" id="btn-visit-next" data-i18n="continue">Continue</button>
+      <button type="button" class="btn btn-ghost" id="btn-demo" data-i18n="loadDemo">Load demo</button>
     </div>
   </section>
 
@@ -153,6 +156,7 @@
       <h1 data-i18n="briefTitle">Your brief.</h1>
       <div id="brief-for-you"></div>
       <div id="brief-questions"></div>
+      <div id="brief-trial-ask"></div>
       <div id="brief-phrase-fast"></div>
     </div>
     <div class="dock">
@@ -183,14 +187,15 @@
   <!-- 7. Consent -->
   <section class="screen" data-screen="consent">
     <div class="screen-body">
-      <h1 data-i18n="consentTitle">Nothing listens until you say yes.</h1>
-      <p class="lede" data-i18n="consentSub">You hold the phone. This is not a replacement for a free professional interpreter.</p>
+      <h1 data-i18n="consentTitle">The phone is not listening yet.</h1>
+      <p class="lede" data-i18n="consentSub">If you say yes, the visit is written on your screen in your language so you can follow along. You can stop anytime.</p>
       <div class="card tight">
         <ul class="consent-list" id="consent-list">
           <li data-i18n="consent1">The talk is written in your language, live.</li>
           <li data-i18n="consent2">It is only used to write the family note after.</li>
           <li data-i18n="consent3">It is gone when you close this.</li>
         </ul>
+        <p class="hint" data-i18n="consentAid">This is not a professional interpreter. You can still ask the clinic for one — it is free.</p>
         <p class="hint" data-i18n="consentWarn">Tell the doctor you are recording.</p>
         <label class="check">
           <input type="checkbox" id="consent-check" />
@@ -322,7 +327,6 @@
 <div id="after-empty" class="hidden"></div>
 <div id="after-result" class="hidden"></div>
 <div id="audit-drawer" class="hidden"><span id="audit-count"></span><ol id="audit-list"></ol></div>
-<button id="btn-demo" class="hidden" type="button"></button>
 
 <script src="/static/i18n.js"></script>
 <script src="/static/app.js"></script>

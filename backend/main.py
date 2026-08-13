@@ -353,12 +353,18 @@ async def export_session(session_id: str):
 # Static frontend
 # --------------------------------------------------------------------------
 FRONTEND = Path(__file__).resolve().parent.parent / "frontend"
+PITCH = Path(__file__).resolve().parent.parent / "pitch"
 if FRONTEND.exists():
     app.mount("/static", StaticFiles(directory=FRONTEND), name="static")
 
     @app.get("/")
     async def index():
         return FileResponse(FRONTEND / "index.html")
+
+if PITCH.exists():
+    @app.get("/pitch")
+    async def pitch():
+        return FileResponse(PITCH / "index.html")
 
 
 if __name__ == "__main__":

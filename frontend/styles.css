@@ -64,13 +64,27 @@ body.theme-dark {
   padding: 10px 14px calc(6px + env(safe-area-inset-top));
   min-height: 52px;
 }
-.appbar-right { margin-left: auto; display: flex; gap: 4px; }
+.appbar-right { margin-left: auto; display: flex; gap: 4px; align-items: center; }
 .icon-btn {
   width: 40px; height: 40px;
   border: 0; background: transparent; color: inherit;
   font: inherit; font-size: 22px; cursor: pointer;
   border-radius: 12px;
 }
+.text-btn {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 10px;
+  border-radius: 12px;
+  opacity: 0.72;
+  white-space: nowrap;
+}
+.text-btn:hover { opacity: 1; }
 .dots {
   display: flex; justify-content: center; gap: 6px;
   padding: 0 0 8px;
@@ -136,7 +150,9 @@ body.theme-dark .steps span { color: rgba(255,255,255,0.6); }
 .card.tight { padding: 18px; }
 .screen-body .card { margin-top: 12px; }
 body.theme-light { background: #111; color: var(--ink); }
-body.theme-light .phone { background: var(--white); }
+body.theme-light .phone { background: #faf9f7; color: var(--ink); }
+body.theme-light .dock { border-top: 1px solid var(--line); }
+body.theme-light .appbar { border-bottom: 1px solid var(--line); }
 
 .btn-ghost {
   background: transparent;
@@ -398,7 +414,7 @@ body.theme-light .btn-secondary,
 .gap-q { font-weight: 600; font-size: 17px; }
 .gap-why { color: var(--muted); font-size: 15px; margin-top: 6px; }
 .gap-how { margin-top: 10px; font-size: 15px; padding-top: 10px; border-top: 1px solid rgba(154,75,18,0.15); }
-.gap-how strong { color: var(--flag); }
+.gap .btn-sm { margin-top: 12px; }
 
 .tx-grid { display: grid; gap: 12px; }
 @media (min-width: 720px) { .tx-grid { grid-template-columns: 1fr 1fr; } }

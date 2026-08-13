@@ -175,6 +175,11 @@ FALLBACK_BRIEF = {
             "priority": "high",
         },
         {
+            "question": "Is there a clinical trial I should ask about, or is metformin the right first step?",
+            "why": "Not a match. The trial site decides. Newer studies exist — ask if any apply to you.",
+            "priority": "medium",
+        },
+        {
             "question": "What side effects should make me call you instead of waiting?",
             "why": "Tells you exactly when something is urgent.",
             "priority": "medium",

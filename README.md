@@ -4,6 +4,8 @@
 
 Built for AWS Biopharma Hack Day · Problem statement #3, Treatment observability for patients.
 
+**For Claude / any agent continuing this work:** read [`CLAUDE.md`](CLAUDE.md) first. Product rules, demo, speech, git, and what not to build live there.
+
 Not an AI doctor. An advocate for first-gen families who translate for their
 parents, miss the question that mattered, and never hear that a trial or a
 newer treatment exists unless they know to ask.
