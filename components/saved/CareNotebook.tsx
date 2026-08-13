@@ -282,6 +282,60 @@ export function CareNotebook({
                       </DocSection>
                     ) : null}
 
+                    {visit.treatmentOptions?.length ? (
+                      <DocSection title="Treatment options discussed">
+                        <ul className="space-y-3" style={{ fontFamily: "var(--font-sans)" }}>
+                          {visit.treatmentOptions.map((option) => (
+                            <li key={option.id}>
+                              <p className="font-medium text-[#202124]">
+                                {option.name || "Unnamed option"}
+                              </p>
+                              <p className="text-[#5f6368]">
+                                Status: {option.status.replaceAll("_", " ")}
+                              </p>
+                              {option.questions.length ? (
+                                <p className="text-[#5f6368]">
+                                  Questions: {option.questions.join(" | ")}
+                                </p>
+                              ) : null}
+                            </li>
+                          ))}
+                        </ul>
+                      </DocSection>
+                    ) : null}
+
+                    {visit.secondOpinionReasons?.length ? (
+                      <DocSection title="Why a second opinion may help">
+                        <ul className="list-disc space-y-1 pl-5">
+                          {visit.secondOpinionReasons.map((reason) => (
+                            <li key={reason}>{reason}</li>
+                          ))}
+                        </ul>
+                      </DocSection>
+                    ) : null}
+
+                    {visit.recordsRequestPlan ? (
+                      <DocSection title="Records request plan">
+                        <p>{visit.recordsRequestPlan}</p>
+                      </DocSection>
+                    ) : null}
+
+                    {visit.specialistSearchNotes ? (
+                      <DocSection title="Specialist search notes">
+                        <p>{visit.specialistSearchNotes}</p>
+                      </DocSection>
+                    ) : null}
+
+                    {visit.secondOpinionQuestions?.length ? (
+                      <DocSection title="Second-opinion consult questions">
+                        <ul className="list-disc space-y-1 pl-5">
+                          {visit.secondOpinionQuestions.map((question) => (
+                            <li key={question}>{question}</li>
+                          ))}
+                        </ul>
+                      </DocSection>
+                    ) : null}
+
                     {visit.decisionsMade ? (
                       <DocSection title="Decisions made">
                         <p>{visit.decisionsMade}</p>

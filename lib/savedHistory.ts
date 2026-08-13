@@ -44,6 +44,50 @@ const SEEDED_STATE: SavedHistoryState = {
         "If anything moves too fast, ask the doctor to pause and repeat the main point in plain language.",
       duringKeyPoints:
         "Focus on test results, treatment timing, and what changes would mean I should message the clinic early.",
+      treatmentOptions: [
+        {
+          id: "tx-watchful-waiting",
+          name: "Watchful waiting with symptom tracking",
+          whatItIs:
+            "Keep the current plan in place, track symptoms closely, and review changes after new labs come back.",
+          benefits:
+            "Avoids changing treatment too quickly and gives the care team cleaner information about patterns over time.",
+          tradeoffs:
+            "Relief may stay limited in the short term, and it can feel frustrating if symptoms keep interrupting daily life.",
+          questions: [
+            "What changes would mean this plan is no longer enough?",
+            "How long should I try this before we revisit treatment?",
+          ],
+          status: "considering",
+        },
+        {
+          id: "tx-med-change",
+          name: "Medication adjustment",
+          whatItIs:
+            "Consider stepping up treatment if the new labs and symptom log suggest the current medication is not doing enough.",
+          benefits:
+            "Could improve inflammation control and reduce fatigue or stiffness faster if disease activity is climbing.",
+          tradeoffs:
+            "May bring new side effects, extra monitoring, or time spent figuring out whether the change is working.",
+          questions: [
+            "What side effects should I watch for?",
+            "How would we know if the adjustment is helping?",
+          ],
+          status: "preferred",
+        },
+      ],
+      secondOpinionReasons: [
+        "I want another explanation of the treatment trade-offs in plain language.",
+        "I want to know whether there are options we have not discussed yet.",
+      ],
+      recordsRequestPlan:
+        "Request the last clinic note, current medication list, recent labs, and imaging before booking another consult.",
+      specialistSearchNotes:
+        "Look for a rheumatologist who focuses on inflammatory arthritis and accepts outside records before the first visit.",
+      secondOpinionQuestions: [
+        "If you were starting from scratch, what treatment path would you consider first?",
+        "What records matter most before the consult?",
+      ],
       decisionsMade:
         "Ordered updated labs, asked to keep a symptom log, and planned to revisit treatment options after results come back.",
       followUpPlan:
@@ -91,6 +135,11 @@ export function loadSavedHistory(): SavedHistoryState {
           remainingQuestions: visit.remainingQuestions ?? [],
           languageSupportPlan: visit.languageSupportPlan ?? "",
           duringKeyPoints: visit.duringKeyPoints ?? "",
+          treatmentOptions: visit.treatmentOptions ?? [],
+          secondOpinionReasons: visit.secondOpinionReasons ?? [],
+          recordsRequestPlan: visit.recordsRequestPlan ?? "",
+          specialistSearchNotes: visit.specialistSearchNotes ?? "",
+          secondOpinionQuestions: visit.secondOpinionQuestions ?? [],
           prescriptions: visit.prescriptions ?? "",
           nextAppointmentDate: visit.nextAppointmentDate ?? inferred.date,
           nextAppointmentTime: visit.nextAppointmentTime ?? inferred.time,

@@ -79,6 +79,16 @@ export interface SavedDocument {
   dataUrl: string;
 }
 
+export interface TreatmentOptionNote {
+  id: string;
+  name: string;
+  whatItIs: string;
+  benefits: string;
+  tradeoffs: string;
+  questions: string[];
+  status: "considering" | "preferred" | "ruled_out" | "unsure";
+}
+
 export interface VisitRecord {
   id: string;
   date: string;
@@ -105,6 +115,16 @@ export interface VisitRecord {
   languageSupportPlan?: string;
   /** Short summary of the key points from the live visit. */
   duringKeyPoints?: string;
+  /** Structured list of treatment paths discussed for this visit. */
+  treatmentOptions?: TreatmentOptionNote[];
+  /** Reasons the patient may want a second opinion. */
+  secondOpinionReasons?: string[];
+  /** How to request or collect records for another consult. */
+  recordsRequestPlan?: string;
+  /** Notes on who to look for or where to go for another opinion. */
+  specialistSearchNotes?: string;
+  /** Questions to bring to a second-opinion consult. */
+  secondOpinionQuestions?: string[];
   decisionsMade: string;
   followUpPlan: string;
   /** Free-text meds / prescriptions mentioned at this visit. */
