@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@/components/shell/Icon";
+import { VisitAppLink } from "@/components/VisitAppLink";
 import { appointmentDateFromVisit, appointmentLabelFromVisit } from "@/lib/appointments";
 import { loadSavedHistory, type SavedHistoryState } from "@/lib/savedHistory";
 import type { VisitRecord } from "@/lib/types";
@@ -273,24 +274,26 @@ export function HomeDashboard() {
             Add your next appointment and Bridge will line up the right steps in the
             order you need them.
           </p>
-          <Link
-            href="/saved"
-            className="mt-5 inline-flex min-h-11 items-center rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-strong)]"
-          >
-            Add an appointment
-          </Link>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link
+              href="/saved"
+              className="inline-flex min-h-11 items-center rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-strong)]"
+            >
+              Add an appointment
+            </Link>
+            <VisitAppLink className="inline-flex min-h-11 items-center rounded-xl border border-[var(--line-strong)] px-4 py-2.5 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--surface-raised)]">
+              Open live visit
+            </VisitAppLink>
+          </div>
         </section>
 
         <section className="grid gap-4 md:grid-cols-2">
-          <Link
-            href="/before"
-            className="rounded-[22px] bg-[var(--surface-raised)] px-5 py-5 shadow-[var(--soft-shadow)] transition hover:bg-[var(--surface)]"
-          >
-            <p className="text-sm font-semibold text-[var(--foreground)]">Today&apos;s tip</p>
+          <VisitAppLink className="rounded-[22px] bg-[var(--surface-raised)] px-5 py-5 shadow-[var(--soft-shadow)] transition hover:bg-[var(--surface)]">
+            <p className="text-sm font-semibold text-[var(--foreground)]">Live visit</p>
             <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-              Write down the one thing you most need from your next visit before you start planning the rest.
+              Captions, questions, and the family note — the extra chair in the room.
             </p>
-          </Link>
+          </VisitAppLink>
           <Link
             href="/profile"
             className="rounded-[22px] bg-[var(--surface-raised)] px-5 py-5 shadow-[var(--soft-shadow)] transition hover:bg-[var(--surface)]"
@@ -344,12 +347,18 @@ export function HomeDashboard() {
         </div>
 
         <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-          <Link
-            href={heroStep.href}
-            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-strong)]"
-          >
-            {activePhase.cta}
-          </Link>
+          {activePhaseKey === "during" ? (
+            <VisitAppLink className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-strong)]">
+              {activePhase.cta}
+            </VisitAppLink>
+          ) : (
+            <Link
+              href={heroStep.href}
+              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-strong)]"
+            >
+              {activePhase.cta}
+            </Link>
+          )}
           <Link
             href={activePhase.href}
             className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[var(--line-strong)] px-4 py-2.5 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--surface-raised)]"
@@ -464,18 +473,15 @@ export function HomeDashboard() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-2">
-        <Link
-          href="/before"
-          className="rounded-[22px] bg-[var(--surface-raised)] px-5 py-5 shadow-[var(--soft-shadow)] transition hover:bg-[var(--surface)]"
-        >
+        <VisitAppLink className="rounded-[22px] bg-[var(--surface-raised)] px-5 py-5 shadow-[var(--soft-shadow)] transition hover:bg-[var(--surface)]">
           <div className="flex items-center gap-2 text-[var(--foreground)]">
-            <Icon name="bulb" className="h-4 w-4 text-[var(--brand)]" />
-            <h2 className="text-sm font-semibold">Today&apos;s tip</h2>
+            <Icon name="globe" className="h-4 w-4 text-[var(--brand)]" />
+            <h2 className="text-sm font-semibold">Live visit</h2>
           </div>
           <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
-            Put your top three goals in order before the appointment starts so the conversation stays anchored to what matters most.
+            When you are in the room, open the companion for captions, questions, and the family note.
           </p>
-        </Link>
+        </VisitAppLink>
 
         <Link
           href="/profile"

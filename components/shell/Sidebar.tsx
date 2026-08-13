@@ -7,15 +7,26 @@ import { JOURNEY_NAV, RESOURCE_NAV, isActive, type NavItem } from "./nav";
 
 function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
   const active = isActive(item.href, pathname);
+  const className = `flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
+    active
+      ? "bg-[var(--brand-soft)] font-semibold text-[var(--brand)]"
+      : "text-[var(--muted)] hover:bg-[var(--surface-raised)] hover:text-[var(--foreground)]"
+  }`;
+
+  if (item.external) {
+    return (
+      <a href={item.href} className={className}>
+        <Icon name={item.icon} className="h-[18px] w-[18px] shrink-0" />
+        <span className="truncate">{item.label}</span>
+      </a>
+    );
+  }
+
   return (
     <Link
       href={item.href}
       aria-current={active ? "page" : undefined}
-      className={`flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
-        active
-          ? "bg-[var(--brand-soft)] font-semibold text-[var(--brand)]"
-          : "text-[var(--muted)] hover:bg-[var(--surface-raised)] hover:text-[var(--foreground)]"
-      }`}
+      className={className}
     >
       <Icon name={item.icon} className="h-[18px] w-[18px] shrink-0" />
       <span className="truncate">{item.label}</span>
@@ -96,17 +107,24 @@ export function MobileNav() {
   return (
     <nav className="flex gap-1.5 overflow-x-auto border-b border-[var(--line)] bg-[var(--surface)] px-3 py-2 lg:hidden">
       {items.map((item) => {
-        const active = isActive(item.href, pathname);
+        const active = !item.external && isActive(item.href, pathname);
+        const className = `flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs ${
+          active
+            ? "bg-[var(--brand-soft)] font-semibold text-[var(--brand)]"
+            : "text-[var(--muted)]"
+        }`;
+
+        if (item.external) {
+          return (
+            <a key={item.href} href={item.href} className={className}>
+              <Icon name={item.icon} className="h-4 w-4" />
+              {item.label}
+            </a>
+          );
+        }
+
         return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs ${
-              active
-                ? "bg-[var(--brand-soft)] font-semibold text-[var(--brand)]"
-                : "text-[var(--muted)]"
-            }`}
-          >
+          <Link key={item.href} href={item.href} className={className}>
             <Icon name={item.icon} className="h-4 w-4" />
             {item.label}
           </Link>

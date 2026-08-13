@@ -1,11 +1,15 @@
 // Single source of truth for sidebar navigation.
 
+import { VISIT_APP_URL } from "@/lib/visitApp";
+
 export interface NavItem {
   href: string;
   label: string;
   icon: string;
   /** Sections that are visible but not yet built out. */
   placeholder?: boolean;
+  /** Opens the live visit companion instead of an in-app route. */
+  external?: boolean;
 }
 
 export const JOURNEY_NAV: NavItem[] = [
@@ -13,6 +17,7 @@ export const JOURNEY_NAV: NavItem[] = [
   { href: "/before", label: "Before Appointment", icon: "calendar", placeholder: true },
   { href: "/during", label: "During Appointment", icon: "pulse", placeholder: true },
   { href: "/after", label: "After Appointment", icon: "clock", placeholder: true },
+  { href: VISIT_APP_URL, label: "Live visit", icon: "globe", external: true },
 ];
 
 export const RESOURCE_NAV: NavItem[] = [
@@ -31,6 +36,7 @@ export const ALL_NAV = [...JOURNEY_NAV, ...RESOURCE_NAV];
 const TRIALS_ROUTES = ["/profile", "/matches", "/trial", "/questions"];
 
 export function isActive(href: string, pathname: string): boolean {
+  if (href.startsWith("http://") || href.startsWith("https://")) return false;
   if (href === "/profile") {
     return TRIALS_ROUTES.some(
       (r) => pathname === r || pathname.startsWith(`${r}/`),
