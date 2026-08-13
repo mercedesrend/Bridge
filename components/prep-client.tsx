@@ -163,7 +163,7 @@ export function PrepClient() {
     return (
       <div className="rounded-3xl border border-[color:var(--line)] bg-[color:var(--card)] p-4">
         <p className="text-sm text-[color:var(--muted)]">Start with your diagnosis intake to unlock this step.</p>
-        <Link href="/" className="mt-4 inline-flex rounded-2xl bg-[color:var(--accent)] px-4 py-3 text-sm font-semibold text-white">
+        <Link href="/intake" className="mt-4 inline-flex rounded-2xl bg-[color:var(--accent)] px-4 py-3 text-sm font-semibold text-white">
           Go to intake
         </Link>
       </div>

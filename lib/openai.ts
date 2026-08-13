@@ -34,7 +34,7 @@ export function getOpenAIClient() {
             "HTTP-Referer": process.env.VERCEL_URL
               ? `https://${process.env.VERCEL_URL}`
               : "http://localhost:3000",
-            "X-Title": "PrepDoc"
+            "X-Title": "Bridge"
           }
         : undefined
     });

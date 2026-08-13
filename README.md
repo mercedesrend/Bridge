@@ -60,14 +60,15 @@ TrialLens/             Related clinical-trial exploration prototype
    cp .env.example .env.local
    ```
 
-3. Add an API key to `.env.local`. The app accepts either `OPENROUTER_API_KEY` or `OPENAI_API_KEY`:
+3. Add an API key and the OpenRouter endpoint to `.env.local`. The app accepts either `OPENROUTER_API_KEY` or `OPENAI_API_KEY`:
 
    ```bash
    OPENROUTER_API_KEY=your_key_here
+   OPENAI_BASE_URL=https://openrouter.ai/api/v1
    OPENAI_MODEL=openai/gpt-4.1-nano
    ```
 
-   Keep `.env.local` private and never commit API keys to source control.
+   The OpenRouter API endpoint is `https://openrouter.ai/api/v1`. Keep `.env.local` private and never commit API keys to source control.
 
 4. Start the development server:
 

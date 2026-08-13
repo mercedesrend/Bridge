@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { AppShell } from "@/components/app-shell";
+import { ClerkProviderWrapper } from "@/components/clerk-provider-wrapper";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PrepDoc",
-  description: "A patient appointment prep companion."
+  title: "Bridge",
+  description: "A patient appointment companion for preparation, support, and follow-up."
 };
 
 export default function RootLayout({
@@ -15,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AppShell>{children}</AppShell>
+        <ClerkProviderWrapper>{children}</ClerkProviderWrapper>
       </body>
     </html>
   );

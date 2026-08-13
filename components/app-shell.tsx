@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { AppHeaderAccount } from "@/components/app-header-account";
 import { readProfile, readQuestions } from "@/lib/storage";
 import { PhaseKey } from "@/lib/types";
 import clsx from "clsx";
@@ -28,19 +29,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="print-shell min-h-screen px-3 py-4 sm:px-4">
-      <div className="mx-auto flex min-h-[calc(100vh-2rem)] max-w-md flex-col rounded-[24px] border border-[color:var(--line)] bg-[color:var(--surface)] shadow-[0_18px_60px_rgba(93,77,55,0.18)]">
+      <div className="mx-auto flex min-h-[calc(100vh-2rem)] max-w-md flex-col rounded-[28px] border border-[color:var(--line)] bg-[color:var(--surface)] shadow-[var(--card-shadow)]">
         <header className="border-b border-[color:var(--line)] px-4 py-4">
-          <div className="flex items-end justify-between gap-3">
+          <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-[0.24em] text-[color:var(--muted)]">
                 Prep for one visit
               </p>
-              <h1 className="mt-1 text-2xl font-semibold">PrepDoc</h1>
+              <h1 className="mt-1 text-2xl font-semibold">Bridge</h1>
             </div>
-            <p className="max-w-[9rem] text-right text-xs leading-5 text-[color:var(--muted)]">
-              Worth asking about. Your doctor can tell you whether this fits.
-            </p>
+            <AppHeaderAccount />
           </div>
+          <p className="mt-3 max-w-[14rem] text-xs leading-5 text-[color:var(--muted)]">
+            Sourced explanations, visit notes, and follow-up help in one calm flow.
+          </p>
         </header>
 
         <main className="flex-1 px-4 py-4">{children}</main>
@@ -59,12 +61,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               return (
                 <Link
                   key={tab.href}
-                  href={unlocked ? tab.href : "/"}
+                  href={unlocked ? tab.href : "/intake"}
                   className={clsx(
                     "rounded-2xl border px-3 py-3 text-center text-sm font-medium transition",
                     active
                       ? "border-[color:var(--accent)] bg-[color:var(--accent)] text-white"
-                      : "border-[color:var(--line)] bg-white text-[color:var(--ink)]",
+                      : "border-[color:var(--line)] bg-[color:var(--surface-raised)] text-[color:var(--ink)]",
                     !unlocked && "opacity-50"
                   )}
                 >

@@ -73,33 +73,37 @@ export function IntakeClient() {
 
   return (
     <div className="space-y-5">
-      <section className="rounded-3xl border border-[color:var(--line)] bg-[color:var(--card)] p-4">
-        <p className="text-sm font-medium text-[color:var(--muted)]">Diagnosis intake</p>
-        <h2 className="mt-1 text-2xl font-semibold">What did your doctor tell you?</h2>
-        <p className="mt-2 text-sm leading-6 text-[color:var(--muted)]">
-          Start with your own words. We&apos;ll pull that into a profile you can confirm before building your question list.
-        </p>
+      <section className="overflow-hidden rounded-[28px] border border-[color:var(--line)] bg-[color:var(--card)] shadow-[var(--soft-shadow)]">
+        <div className="border-b border-[color:var(--line)] bg-[color:var(--surface-raised)] px-4 py-4">
+          <div className="inline-flex rounded-full bg-[color:var(--accent-soft)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--accent-strong)]">
+            Before the visit
+          </div>
+          <h2 className="mt-3 text-2xl font-semibold">Tell Bridge what your doctor told you.</h2>
+          <p className="mt-2 text-sm leading-6 text-[color:var(--muted)]">
+            Start with your own words. We&apos;ll turn that into a structured profile so the rest of your prep feels focused, not overwhelming.
+          </p>
+        </div>
 
-        <form className="mt-4 space-y-4" onSubmit={parseDescription}>
+        <form className="space-y-4 p-4" onSubmit={parseDescription}>
           <textarea
             value={profile.rawDescription}
             onChange={(event) => updateField("rawDescription", event.target.value)}
             placeholder="My doctor said..."
-            className="min-h-36 w-full rounded-2xl border border-[color:var(--line)] bg-white px-4 py-3 text-base outline-none"
+            className="min-h-40 w-full rounded-3xl border border-[color:var(--line)] bg-white px-4 py-3 text-base"
           />
 
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <button
               type="submit"
               disabled={isParsing || !profile.rawDescription.trim()}
-              className="flex-1 rounded-2xl bg-[color:var(--accent)] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+              className="min-h-11 flex-1 rounded-full bg-[color:var(--accent)] px-5 py-3 text-sm font-semibold text-white disabled:opacity-50"
             >
               {isParsing ? "Parsing..." : "Parse my note"}
             </button>
             <button
               type="button"
               onClick={useSample}
-              className="rounded-2xl border border-[color:var(--line)] px-4 py-3 text-sm font-semibold"
+              className="min-h-11 rounded-full border border-[color:var(--line)] bg-[color:var(--surface-raised)] px-5 py-3 text-sm font-semibold"
             >
               Try a sample
             </button>
@@ -108,11 +112,14 @@ export function IntakeClient() {
         </form>
       </section>
 
-      <section className="rounded-3xl border border-[color:var(--line)] bg-[color:var(--card)] p-4">
+      <section className="rounded-[28px] border border-[color:var(--line)] bg-[color:var(--card)] p-4 shadow-[var(--soft-shadow)]">
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="text-sm font-medium text-[color:var(--muted)]">Confirm your profile</p>
             <h3 className="mt-1 text-xl font-semibold">Edit anything that looks off</h3>
+          </div>
+          <div className="hidden rounded-full bg-[color:var(--accent-soft)] px-3 py-2 text-xs font-semibold text-[color:var(--accent-strong)] sm:block">
+            Step 1 of 3
           </div>
         </div>
 
@@ -180,7 +187,7 @@ export function IntakeClient() {
           type="button"
           disabled={!profile.condition.trim() || !profile.rawDescription.trim()}
           onClick={continueToPrep}
-          className="mt-4 w-full rounded-2xl bg-[color:var(--accent-strong)] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+          className="mt-4 min-h-11 w-full rounded-full bg-[color:var(--accent-strong)] px-5 py-3 text-sm font-semibold text-white disabled:opacity-50"
         >
           Continue to treatment menu
         </button>

@@ -117,7 +117,7 @@ export function RecapClient() {
     return (
       <div className="rounded-3xl border border-[color:var(--line)] bg-[color:var(--card)] p-4">
         <p className="text-sm text-[color:var(--muted)]">Finish the earlier phases first so we have something to recap.</p>
-        <Link href="/" className="mt-4 inline-flex rounded-2xl bg-[color:var(--accent)] px-4 py-3 text-sm font-semibold text-white">
+        <Link href="/intake" className="mt-4 inline-flex rounded-2xl bg-[color:var(--accent)] px-4 py-3 text-sm font-semibold text-white">
           Back to intake
         </Link>
       </div>

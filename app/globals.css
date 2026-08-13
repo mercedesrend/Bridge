@@ -1,18 +1,23 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #f4efe6;
-  --surface: #fbf8f2;
-  --card: #fffdf8;
-  --ink: #1f2937;
-  --muted: #6b7280;
-  --line: #d6cfc2;
-  --accent: #0f766e;
-  --accent-strong: #115e59;
-  --accent-soft: #d6f2ee;
-  --warning: #8a5a14;
-  --warning-soft: #fef3c7;
+  --bg: #f8f8fc;
+  --surface: #ffffff;
+  --surface-raised: #f3f4fb;
+  --card: #ffffff;
+  --ink: #1f2233;
+  --muted: #6b7089;
+  --line: #ecebf3;
+  --line-strong: #d8dced;
+  --hairline: rgba(133, 145, 180, 0.28);
+  --accent: #6c5ce7;
+  --accent-strong: #5b4bd6;
+  --accent-soft: #f1eefe;
   --rose-soft: #ffe4e6;
+  --warning: #915f13;
+  --warning-soft: #fff2d5;
+  --card-shadow: 0 14px 36px rgba(39, 43, 72, 0.08);
+  --soft-shadow: 0 8px 24px rgba(39, 43, 72, 0.06);
 }
 
 * {
@@ -20,14 +25,20 @@
 }
 
 html {
-  background: radial-gradient(circle at top, #fffdf7 0%, var(--bg) 55%, #eadfce 100%);
+  -webkit-text-size-adjust: 100%;
+  background: var(--bg);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
   color: var(--ink);
-  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(108, 92, 231, 0.08), transparent 28%),
+    radial-gradient(circle at top right, rgba(108, 92, 231, 0.06), transparent 24%),
+    var(--bg);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 a {
@@ -39,6 +50,25 @@ button,
 input,
 textarea {
   font: inherit;
+}
+
+input,
+textarea,
+select {
+  outline: none;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.14);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: var(--soft-shadow);
 }
 
 @media print {
