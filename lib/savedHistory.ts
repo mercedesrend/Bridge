@@ -25,6 +25,8 @@ const SEEDED_STATE: SavedHistoryState = {
         "Ordered updated labs, asked to keep a symptom log, and planned to revisit treatment options after results come back.",
       followUpPlan:
         "Request lab results in the portal, track symptom changes for two weeks, and bring the updated question list to the next appointment.",
+      prescriptions:
+        "Continue current anti-inflammatory as directed. No new prescriptions started at this visit.",
       nextAppointment: "2026-08-14 10:30 AM",
     },
   ],
@@ -49,7 +51,13 @@ export function loadSavedHistory(): SavedHistoryState {
     if (!Array.isArray(parsed.visits) || !Array.isArray(parsed.documents)) {
       return SEEDED_STATE;
     }
-    return parsed;
+    return {
+      ...parsed,
+      visits: parsed.visits.map((visit) => ({
+        ...visit,
+        prescriptions: visit.prescriptions ?? "",
+      })),
+    };
   } catch {
     return SEEDED_STATE;
   }

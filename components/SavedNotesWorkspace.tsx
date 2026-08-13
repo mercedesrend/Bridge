@@ -1,7 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AskBridgeInlinePrompts } from "@/components/ask/AskBridgeInlinePrompts";
+import { openAskBridge } from "@/components/ask/openAskBridge";
+import {
+  AddVisitDrawer,
+  draftFromVisit,
+  emptyVisitDraft,
+  type VisitDraft,
+} from "@/components/saved/AddVisitDrawer";
+import { CareNotebook, CareNotebookTab } from "@/components/saved/CareNotebook";
 import { Icon } from "@/components/shell/Icon";
 import {
   loadSavedHistory,
@@ -11,30 +18,6 @@ import {
   type SavedHistoryState,
 } from "@/lib/savedHistory";
 import type { SavedDocument, VisitRecord } from "@/lib/types";
-
-type VisitDraft = {
-  date: string;
-  doctor: string;
-  specialty: string;
-  location: string;
-  summary: string;
-  symptomsText: string;
-  decisionsMade: string;
-  followUpPlan: string;
-  nextAppointment: string;
-};
-
-const emptyDraft: VisitDraft = {
-  date: "",
-  doctor: "",
-  specialty: "",
-  location: "",
-  summary: "",
-  symptomsText: "",
-  decisionsMade: "",
-  followUpPlan: "",
-  nextAppointment: "",
-};
 
 function humanFileSize(sizeBytes: number) {
   if (sizeBytes < 1024) return `${sizeBytes} B`;
@@ -52,6 +35,23 @@ function formatVisitDate(date: string) {
   }).format(parsed);
 }
 
+function formatFollowUp(value: string) {
+  if (!value.trim()) return "";
+  const isoish = value.match(/^(\d{4}-\d{2}-\d{2})(?:[ T](\d{1,2}:\d{2})\s*(AM|PM)?)?/i);
+  if (!isoish) return value;
+  const datePart = isoish[1];
+  const timePart = isoish[2];
+  const meridiem = isoish[3];
+  const parsed = new Date(`${datePart}T12:00:00`);
+  const dateLabel = new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  }).format(parsed);
+  if (!timePart) return dateLabel;
+  return `${dateLabel} · ${timePart}${meridiem ? ` ${meridiem.toUpperCase()}` : ""}`;
+}
+
 function docsForVisit(documents: SavedDocument[], visitId: string) {
   return documents.filter((doc) => doc.visitId === visitId);
 }
@@ -65,6 +65,22 @@ async function fileToDataUrl(file: File) {
   });
 }
 
+function visitFromDraft(draft: VisitDraft, id: string): VisitRecord {
+  return {
+    id,
+    date: draft.date,
+    doctor: draft.doctor.trim(),
+    specialty: draft.specialty.trim(),
+    location: draft.location.trim(),
+    summary: draft.summary.trim(),
+    symptomsDiscussed: draft.symptoms,
+    decisionsMade: draft.decisionsMade.trim(),
+    followUpPlan: draft.followUpPlan.trim(),
+    prescriptions: draft.prescriptions.trim(),
+    nextAppointment: draft.nextAppointment.trim(),
+  };
+}
+
 export function SavedNotesWorkspace() {
   const [savedState, setSavedState] = useState<SavedHistoryState>(() =>
     loadSavedHistory(),
@@ -72,69 +88,84 @@ export function SavedNotesWorkspace() {
   const [activeVisitId, setActiveVisitId] = useState(
     () => loadSavedHistory().visits[0]?.id ?? "",
   );
-  const [draft, setDraft] = useState<VisitDraft>(emptyDraft);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerMode, setDrawerMode] = useState<"add" | "edit">("add");
+  const [drawerDraft, setDrawerDraft] = useState<VisitDraft>(emptyVisitDraft);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [notebookOpen, setNotebookOpen] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [dragging, setDragging] = useState(false);
 
   const visits = savedState.visits;
   const documents = savedState.documents;
   const activeVisit =
     visits.find((visit) => visit.id === activeVisitId) ?? visits[0] ?? null;
-  const activeDocuments = activeVisit ? docsForVisit(documents, activeVisit.id) : [];
+  const activeDocuments = activeVisit
+    ? docsForVisit(documents, activeVisit.id)
+    : [];
+
+  const askPrompts = useMemo(
+    () => [
+      "Turn this visit into next-visit questions",
+      "Make a follow-up checklist from my notes",
+    ],
+    [],
+  );
 
   function commit(nextState: SavedHistoryState) {
     setSavedState(nextState);
     saveSavedHistory(nextState);
   }
 
-  function updateDraft<K extends keyof VisitDraft>(key: K, value: VisitDraft[K]) {
-    setDraft((current) => ({ ...current, [key]: value }));
+  function openAddDrawer() {
+    setDrawerMode("add");
+    setDrawerDraft(emptyVisitDraft);
+    setDrawerOpen(true);
   }
 
-  function addVisit() {
-    if (!draft.date || !draft.doctor.trim() || !draft.summary.trim()) {
-      return;
+  function openEditDrawer() {
+    if (!activeVisit) return;
+    setDrawerMode("edit");
+    setDrawerDraft(draftFromVisit(activeVisit));
+    setDrawerOpen(true);
+    setMenuOpen(false);
+  }
+
+  function saveDraft(draft: VisitDraft) {
+    if (drawerMode === "edit" && activeVisit) {
+      const updated = visitFromDraft(draft, activeVisit.id);
+      const nextVisits = savedState.visits
+        .map((visit) => (visit.id === activeVisit.id ? updated : visit))
+        .sort((a, b) => (a.date < b.date ? 1 : -1));
+      commit({ ...savedState, visits: nextVisits });
+      setActiveVisitId(updated.id);
+    } else {
+      const visit = visitFromDraft(draft, makeSavedId("visit"));
+      const nextState = {
+        ...savedState,
+        visits: [visit, ...savedState.visits].sort((a, b) =>
+          a.date < b.date ? 1 : -1,
+        ),
+      };
+      commit(nextState);
+      setActiveVisitId(visit.id);
     }
-
-    const visit: VisitRecord = {
-      id: makeSavedId("visit"),
-      date: draft.date,
-      doctor: draft.doctor.trim(),
-      specialty: draft.specialty.trim(),
-      location: draft.location.trim(),
-      summary: draft.summary.trim(),
-      symptomsDiscussed: draft.symptomsText
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean),
-      decisionsMade: draft.decisionsMade.trim(),
-      followUpPlan: draft.followUpPlan.trim(),
-      nextAppointment: draft.nextAppointment.trim(),
-    };
-
-    const nextState = {
-      ...savedState,
-      visits: [visit, ...savedState.visits].sort((a, b) =>
-        a.date < b.date ? 1 : -1,
-      ),
-    };
-    commit(nextState);
-    setActiveVisitId(visit.id);
-    setDraft(emptyDraft);
+    setDrawerOpen(false);
   }
 
   function deleteVisit(visitId: string) {
     const nextVisits = savedState.visits.filter((visit) => visit.id !== visitId);
-    const nextDocuments = savedState.documents.filter((doc) => doc.visitId !== visitId);
-    const nextState = { visits: nextVisits, documents: nextDocuments };
-    commit(nextState);
+    const nextDocuments = savedState.documents.filter(
+      (doc) => doc.visitId !== visitId,
+    );
+    commit({ visits: nextVisits, documents: nextDocuments });
     setActiveVisitId(nextVisits[0]?.id ?? "");
+    setMenuOpen(false);
   }
 
   async function handleUpload(fileList: FileList | null) {
     const file = fileList?.[0];
-    if (!file || !activeVisit) {
-      return;
-    }
+    if (!file || !activeVisit) return;
 
     setUploadError("");
 
@@ -144,7 +175,9 @@ export function SavedNotesWorkspace() {
     }
 
     if (file.size > maxUploadBytes()) {
-      setUploadError("This first pass keeps files local, so PDFs need to stay under 2 MB.");
+      setUploadError(
+        "This first pass keeps files local, so PDFs need to stay under 2 MB.",
+      );
       return;
     }
 
@@ -178,178 +211,87 @@ export function SavedNotesWorkspace() {
     });
   }
 
-  const summaryStats = useMemo(
-    () => [
-      {
-        label: "Visits saved",
-        value: String(visits.length),
-      },
-      {
-        label: "Documents",
-        value: String(documents.length),
-      },
-      {
-        label: "Latest follow-up",
-        value: activeVisit?.nextAppointment || "Not set",
-      },
-    ],
-    [activeVisit?.nextAppointment, documents.length, visits.length],
-  );
-
   return (
-    <div className="mx-auto max-w-6xl space-y-8">
-      <section>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--brand-soft)] px-2.5 py-1 text-xs font-semibold text-[var(--brand)]">
-          <Icon name="bookmark" className="h-3.5 w-3.5" />
-          Saved & Notes
-        </span>
-        <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
-          Keep the story from one visit to the next
-        </h1>
-        <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-600">
-          Save what happened at each appointment, keep the next-step plan in one
-          place, and attach PDFs like after-visit summaries or lab reports so
-          Bridge has the context you want close at hand.
-        </p>
+    <div className="relative mx-auto max-w-6xl">
+      <CareNotebookTab onOpen={() => setNotebookOpen(true)} />
+
+      <section className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--brand-soft)] px-2.5 py-1 text-xs font-semibold text-[var(--brand)]">
+            <Icon name="bookmark" className="h-3.5 w-3.5" />
+            Saved & Notes
+          </span>
+          <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+            Visit notes
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600">
+            Review what happened, keep next steps close, and attach PDFs. Open the
+            care notebook tab anytime for the full running document.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={openAddDrawer}
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-strong)]"
+        >
+          <Icon name="plus" className="h-4 w-4" />
+          Add visit
+        </button>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
-        {summaryStats.map((stat) => (
-          <div key={stat.label} className="rounded-2xl bg-[var(--brand-soft)] p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
-              {stat.label}
-            </p>
-            <p className="mt-3 text-2xl font-semibold text-slate-900">{stat.value}</p>
+      <section className="mt-8 grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
+        <aside className="rounded-2xl border border-[var(--line)] bg-white p-4">
+          <div className="flex items-center justify-between gap-3 px-1">
+            <h2 className="text-sm font-semibold text-slate-900">Recent visits</h2>
+            <span className="text-xs text-[var(--muted)]">Newest first</span>
           </div>
-        ))}
-      </section>
 
-      <section className="grid gap-8 lg:grid-cols-[320px_minmax(0,1fr)]">
-        <div className="space-y-5">
-          <section className="rounded-2xl border border-[var(--line)] bg-white p-5">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="text-lg font-semibold text-slate-900">Recent visits</h2>
-              <span className="text-xs text-[var(--muted)]">
-                newest first
-              </span>
-            </div>
-
-            <div className="mt-4 space-y-3">
-              {visits.map((visit) => {
+          <div className="mt-3 space-y-2">
+            {visits.length === 0 ? (
+              <p className="rounded-xl bg-[var(--surface-raised)] px-3 py-4 text-sm text-slate-500">
+                No visits yet. Add your first appointment notes.
+              </p>
+            ) : (
+              visits.map((visit) => {
                 const isActive = visit.id === activeVisit?.id;
                 return (
                   <button
                     key={visit.id}
                     type="button"
-                    onClick={() => setActiveVisitId(visit.id)}
-                    className={`w-full rounded-2xl border px-4 py-4 text-left transition ${
+                    onClick={() => {
+                      setActiveVisitId(visit.id);
+                      setMenuOpen(false);
+                    }}
+                    className={`w-full rounded-xl border px-3.5 py-3.5 text-left transition ${
                       isActive
                         ? "border-[var(--brand)] bg-[var(--brand-soft)]"
-                        : "border-[var(--line)] bg-white hover:border-[var(--brand)]/30"
+                        : "border-transparent bg-white hover:bg-slate-50"
                     }`}
                   >
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
                       {formatVisitDate(visit.date)}
                     </p>
-                    <p className="mt-2 text-sm font-semibold text-slate-900">
+                    <p className="mt-1.5 text-sm font-semibold text-slate-900">
                       {visit.doctor}
                     </p>
-                    <p className="mt-1 text-sm text-slate-600">
-                      {visit.specialty || "Specialty not added"}
-                    </p>
-                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">
+                    <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-600">
                       {visit.summary}
                     </p>
                   </button>
                 );
-              })}
-            </div>
-          </section>
+              })
+            )}
+          </div>
+        </aside>
 
-          <section className="rounded-2xl border border-[var(--line)] bg-white p-5">
-            <h2 className="text-lg font-semibold text-slate-900">Add a visit</h2>
-            <p className="mt-1 text-sm leading-6 text-slate-600">
-              Start with the basics, then add what actually happened that day.
-            </p>
-
-            <div className="mt-4 space-y-3">
-              <input
-                type="date"
-                value={draft.date}
-                onChange={(event) => updateDraft("date", event.target.value)}
-                className="min-h-11 w-full rounded-xl border border-[var(--line)] px-3 py-2 text-sm text-slate-900 outline-none focus:border-[var(--brand)]"
-              />
-              <input
-                value={draft.doctor}
-                onChange={(event) => updateDraft("doctor", event.target.value)}
-                placeholder="Doctor name"
-                className="min-h-11 w-full rounded-xl border border-[var(--line)] px-3 py-2 text-sm text-slate-900 outline-none focus:border-[var(--brand)]"
-              />
-              <input
-                value={draft.specialty}
-                onChange={(event) => updateDraft("specialty", event.target.value)}
-                placeholder="Specialty"
-                className="min-h-11 w-full rounded-xl border border-[var(--line)] px-3 py-2 text-sm text-slate-900 outline-none focus:border-[var(--brand)]"
-              />
-              <input
-                value={draft.location}
-                onChange={(event) => updateDraft("location", event.target.value)}
-                placeholder="Clinic or hospital"
-                className="min-h-11 w-full rounded-xl border border-[var(--line)] px-3 py-2 text-sm text-slate-900 outline-none focus:border-[var(--brand)]"
-              />
-              <textarea
-                rows={3}
-                value={draft.summary}
-                onChange={(event) => updateDraft("summary", event.target.value)}
-                placeholder="What happened at the visit?"
-                className="w-full rounded-xl border border-[var(--line)] px-3 py-2 text-sm text-slate-900 outline-none focus:border-[var(--brand)]"
-              />
-              <input
-                value={draft.symptomsText}
-                onChange={(event) => updateDraft("symptomsText", event.target.value)}
-                placeholder="Symptoms discussed, comma-separated"
-                className="min-h-11 w-full rounded-xl border border-[var(--line)] px-3 py-2 text-sm text-slate-900 outline-none focus:border-[var(--brand)]"
-              />
-              <textarea
-                rows={2}
-                value={draft.decisionsMade}
-                onChange={(event) => updateDraft("decisionsMade", event.target.value)}
-                placeholder="Decisions made"
-                className="w-full rounded-xl border border-[var(--line)] px-3 py-2 text-sm text-slate-900 outline-none focus:border-[var(--brand)]"
-              />
-              <textarea
-                rows={2}
-                value={draft.followUpPlan}
-                onChange={(event) => updateDraft("followUpPlan", event.target.value)}
-                placeholder="Follow-up plan"
-                className="w-full rounded-xl border border-[var(--line)] px-3 py-2 text-sm text-slate-900 outline-none focus:border-[var(--brand)]"
-              />
-              <input
-                value={draft.nextAppointment}
-                onChange={(event) =>
-                  updateDraft("nextAppointment", event.target.value)
-                }
-                placeholder="Next appointment"
-                className="min-h-11 w-full rounded-xl border border-[var(--line)] px-3 py-2 text-sm text-slate-900 outline-none focus:border-[var(--brand)]"
-              />
-              <button
-                type="button"
-                onClick={addVisit}
-                className="min-h-11 w-full rounded-xl bg-[var(--brand)] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[var(--brand-strong)]"
-              >
-                Save visit
-              </button>
-            </div>
-          </section>
-        </div>
-
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5">
           {activeVisit ? (
             <>
               <section className="rounded-2xl border border-[var(--line)] bg-white p-6">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
                       {formatVisitDate(activeVisit.date)}
                     </p>
                     <h2 className="mt-2 text-2xl font-semibold text-slate-900">
@@ -358,113 +300,192 @@ export function SavedNotesWorkspace() {
                     <p className="mt-1 text-sm text-slate-600">
                       {[activeVisit.specialty, activeVisit.location]
                         .filter(Boolean)
-                        .join(" · ") || "Add specialty and location details"}
+                        .join(" · ") || "Add specialty and location"}
                     </p>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => deleteVisit(activeVisit.id)}
-                    className="min-h-11 rounded-xl border border-[var(--line)] px-4 py-2 text-sm font-medium text-slate-600 transition hover:text-slate-900"
-                  >
-                    Remove visit
-                  </button>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setMenuOpen((open) => !open)}
+                      className="grid h-10 w-10 place-items-center rounded-xl border border-[var(--line)] text-slate-600 transition hover:bg-slate-50"
+                      aria-label="Visit actions"
+                      aria-expanded={menuOpen}
+                    >
+                      ···
+                    </button>
+                    {menuOpen ? (
+                      <div className="absolute right-0 z-10 mt-2 w-44 overflow-hidden rounded-xl border border-[var(--line)] bg-white shadow-lg">
+                        <button
+                          type="button"
+                          onClick={openEditDrawer}
+                          className="block w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50"
+                        >
+                          Edit visit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => deleteVisit(activeVisit.id)}
+                          className="block w-full px-4 py-2.5 text-left text-sm text-rose-700 hover:bg-rose-50"
+                        >
+                          Remove visit
+                        </button>
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
 
-                <div className="mt-6 grid gap-6 md:grid-cols-2">
+                {activeVisit.nextAppointment ? (
+                  <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-[var(--brand-soft)] px-3.5 py-1.5 text-sm font-medium text-slate-800">
+                    <Icon name="calendar" className="h-4 w-4 text-[var(--brand)]" />
+                    Next appointment · {formatFollowUp(activeVisit.nextAppointment)}
+                  </div>
+                ) : null}
+
+                <div className="mt-6 space-y-6">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
                       What happened
                     </p>
                     <p className="mt-2 text-sm leading-7 text-slate-700">
                       {activeVisit.summary}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
-                      Symptoms discussed
-                    </p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {activeVisit.symptomsDiscussed.length ? (
-                        activeVisit.symptomsDiscussed.map((symptom) => (
+
+                  {activeVisit.symptomsDiscussed.length ? (
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+                        Symptoms discussed
+                      </p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {activeVisit.symptomsDiscussed.map((symptom) => (
                           <span
                             key={symptom}
                             className="rounded-full bg-[var(--brand-soft)] px-3 py-1 text-sm text-slate-700"
                           >
                             {symptom}
                           </span>
-                        ))
-                      ) : (
-                        <p className="text-sm text-slate-500">No symptoms captured yet.</p>
-                      )}
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
-                      Decisions made
-                    </p>
-                    <p className="mt-2 text-sm leading-7 text-slate-700">
-                      {activeVisit.decisionsMade || "No treatment or testing decisions saved yet."}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
-                      Follow-up plan
-                    </p>
-                    <p className="mt-2 text-sm leading-7 text-slate-700">
-                      {activeVisit.followUpPlan || "No follow-up plan saved yet."}
-                    </p>
-                    <p className="mt-3 text-sm font-medium text-slate-800">
-                      Next appointment:{" "}
-                      <span className="font-normal text-slate-600">
-                        {activeVisit.nextAppointment || "Not scheduled"}
-                      </span>
-                    </p>
-                  </div>
+                  ) : null}
+
+                  {activeVisit.decisionsMade ? (
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+                        Decisions made
+                      </p>
+                      <p className="mt-2 text-sm leading-7 text-slate-700">
+                        {activeVisit.decisionsMade}
+                      </p>
+                    </div>
+                  ) : null}
+
+                  {activeVisit.followUpPlan ? (
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+                        Follow-up plan
+                      </p>
+                      <p className="mt-2 text-sm leading-7 text-slate-700">
+                        {activeVisit.followUpPlan}
+                      </p>
+                    </div>
+                  ) : null}
+
+                  {activeVisit.prescriptions ? (
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+                        Prescriptions & medications
+                      </p>
+                      <p className="mt-2 text-sm leading-7 text-slate-700">
+                        {activeVisit.prescriptions}
+                      </p>
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="mt-7 flex flex-wrap gap-2 border-t border-[var(--line)] pt-5">
+                  {askPrompts.map((prompt) => (
+                    <button
+                      key={prompt}
+                      type="button"
+                      onClick={() => openAskBridge(prompt)}
+                      className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-[var(--line)] bg-white px-3.5 py-2 text-sm text-slate-700 transition hover:border-[var(--brand)]/35 hover:bg-[var(--brand-soft)]"
+                    >
+                      <Icon name="sparkle" className="h-3.5 w-3.5 text-[var(--brand)]" />
+                      {prompt}
+                    </button>
+                  ))}
                 </div>
               </section>
 
               <section className="rounded-2xl border border-[var(--line)] bg-white p-6">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div>
-                    <h2 className="text-lg font-semibold text-slate-900">
-                      Visit documents
-                    </h2>
-                    <p className="mt-1 text-sm leading-6 text-slate-600">
-                      Upload PDFs like after-visit summaries, labs, or discharge notes. This first pass stores them locally in this browser.
-                    </p>
-                  </div>
-                  <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-strong)]">
-                    <Icon name="upload" className="h-4 w-4" />
-                    Upload PDF
-                    <input
-                      type="file"
-                      accept="application/pdf"
-                      className="hidden"
-                      onChange={(event) => {
-                        void handleUpload(event.target.files);
-                        event.target.value = "";
-                      }}
-                    />
-                  </label>
-                </div>
+                <h2 className="text-lg font-semibold text-slate-900">
+                  Visit documents
+                </h2>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
+                  Attach after-visit summaries, labs, or discharge notes. Stored
+                  locally in this browser.
+                </p>
+
+                <label
+                  onDragEnter={(event) => {
+                    event.preventDefault();
+                    setDragging(true);
+                  }}
+                  onDragOver={(event) => {
+                    event.preventDefault();
+                    setDragging(true);
+                  }}
+                  onDragLeave={(event) => {
+                    event.preventDefault();
+                    setDragging(false);
+                  }}
+                  onDrop={(event) => {
+                    event.preventDefault();
+                    setDragging(false);
+                    void handleUpload(event.dataTransfer.files);
+                  }}
+                  className={`mt-5 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed px-4 py-8 text-center transition ${
+                    dragging
+                      ? "border-[var(--brand)] bg-[var(--brand-soft)]"
+                      : "border-[var(--line-strong)] bg-[var(--surface-raised)] hover:border-[var(--brand)]/40"
+                  }`}
+                >
+                  <Icon name="upload" className="h-5 w-5 text-[var(--brand)]" />
+                  <p className="mt-3 text-sm font-medium text-slate-800">
+                    Drop a visit summary or labs PDF
+                  </p>
+                  <p className="mt-1 text-sm text-slate-500">
+                    or click to upload · PDF under 2 MB
+                  </p>
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    className="hidden"
+                    onChange={(event) => {
+                      void handleUpload(event.target.files);
+                      event.target.value = "";
+                    }}
+                  />
+                </label>
 
                 {uploadError ? (
-                  <p className="mt-4 text-sm text-rose-700">{uploadError}</p>
+                  <p className="mt-3 text-sm text-rose-700">{uploadError}</p>
                 ) : null}
 
-                <div className="mt-5 space-y-3">
-                  {activeDocuments.length ? (
-                    activeDocuments.map((document) => (
+                {activeDocuments.length ? (
+                  <div className="mt-4 space-y-2">
+                    {activeDocuments.map((document) => (
                       <div
                         key={document.id}
-                        className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--line)] px-4 py-4"
+                        className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--line)] px-4 py-3"
                       >
                         <div className="min-w-0">
                           <p className="truncate text-sm font-semibold text-slate-900">
                             {document.name}
                           </p>
-                          <p className="mt-1 text-sm text-slate-500">
+                          <p className="mt-0.5 text-sm text-slate-500">
                             {humanFileSize(document.sizeBytes)} · added{" "}
                             {new Intl.DateTimeFormat("en-US", {
                               month: "short",
@@ -473,7 +494,6 @@ export function SavedNotesWorkspace() {
                             }).format(new Date(document.uploadedAt))}
                           </p>
                         </div>
-
                         <div className="flex items-center gap-3">
                           <a
                             href={document.dataUrl}
@@ -491,57 +511,47 @@ export function SavedNotesWorkspace() {
                           </button>
                         </div>
                       </div>
-                    ))
-                  ) : (
-                    <p className="rounded-2xl border border-dashed border-[var(--line)] px-4 py-6 text-sm text-slate-500">
-                      No PDFs attached to this visit yet.
-                    </p>
-                  )}
-                </div>
+                    ))}
+                  </div>
+                ) : null}
               </section>
             </>
-          ) : null}
-
-          <section className="rounded-2xl border border-[var(--line)] bg-white p-6">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Saved items queue
-            </h2>
-            <p className="mt-1 text-sm leading-6 text-slate-600">
-              This page can also become the home for saved trials, treatment options, and reusable question lists from the rest of Bridge.
-            </p>
-
-            <div className="mt-5 grid gap-3 md:grid-cols-3">
-              {[
-                {
-                  title: "Saved trials",
-                  blurb: "Pin studies worth revisiting after you talk with your care team.",
-                },
-                {
-                  title: "Treatment options",
-                  blurb: "Keep plain-language summaries of options discussed across visits.",
-                },
-                {
-                  title: "Question lists",
-                  blurb: "Carry the strongest questions from one appointment into the next.",
-                },
-              ].map((item) => (
-                <div
-                  key={item.title}
-                  className="rounded-2xl bg-[var(--brand-soft)] px-4 py-4"
-                >
-                  <p className="text-sm font-semibold text-slate-900">{item.title}</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">{item.blurb}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <AskBridgeInlinePrompts
-            title="Use Ask Bridge on top of your history"
-            blurb="Now that visit notes and PDFs live here, Bridge can help you turn that history into cleaner follow-up questions and next-step checklists."
-          />
+          ) : (
+            <section className="rounded-2xl border border-dashed border-[var(--line-strong)] bg-white px-6 py-16 text-center">
+              <h2 className="text-lg font-semibold text-slate-900">
+                Start your visit history
+              </h2>
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">
+                Save what your care team said so you can carry it into the next
+                appointment — and into Ask Bridge.
+              </p>
+              <button
+                type="button"
+                onClick={openAddDrawer}
+                className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-strong)]"
+              >
+                <Icon name="plus" className="h-4 w-4" />
+                Add visit
+              </button>
+            </section>
+          )}
         </div>
       </section>
+
+      <AddVisitDrawer
+        open={drawerOpen}
+        mode={drawerMode}
+        initialDraft={drawerDraft}
+        onClose={() => setDrawerOpen(false)}
+        onSave={saveDraft}
+      />
+
+      <CareNotebook
+        open={notebookOpen}
+        onClose={() => setNotebookOpen(false)}
+        visits={visits}
+        documents={documents}
+      />
     </div>
   );
 }

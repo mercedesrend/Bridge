@@ -19,7 +19,7 @@ export const RESOURCE_NAV: NavItem[] = [
   { href: "/treatment-options", label: "Treatment Options", icon: "target", placeholder: true },
   { href: "/profile", label: "Clinical Trials", icon: "flask" },
   { href: "/second-opinions", label: "Second Opinions", icon: "users", placeholder: true },
-  { href: "/saved", label: "Saved & Notes", icon: "bookmark", placeholder: true },
+  { href: "/saved", label: "Saved & Notes", icon: "bookmark" },
 ];
 
 export const ALL_NAV = [...JOURNEY_NAV, ...RESOURCE_NAV];

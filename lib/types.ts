@@ -89,5 +89,7 @@ export interface VisitRecord {
   symptomsDiscussed: string[];
   decisionsMade: string;
   followUpPlan: string;
+  /** Free-text meds / prescriptions mentioned at this visit. */
+  prescriptions: string;
   nextAppointment: string;
 }
